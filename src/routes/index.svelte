@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { create_rpc_client } from 'ts-rpc/client'
-  import { request_rpc } from 'ts-rpc/client'
   /* import fetch from 'cross-fetch' */
   import type { ForagerSpec } from '../spec'
 
@@ -12,18 +11,22 @@
   /*     this.fetch_impl = fetch_impl */
   /*   } */
   /* } */
-  const client = create_rpc_client<ForagerSpec>(`/api/rpc`, { fetch })
-  onMount(() => {
+  const client = create_rpc_client<ForagerSpec>(`/api/rpc`)
+  onMount(async () => {
 
     /* console.log({ result }) */
 
+    /* click() */
+    const response = await client.media.search({ tags: [], limit: 100, offset: 0 })
+    console.log({ response })
   })
 
   async function click() {
     /* const response = await fetch('/api/rpc', { method: 'PUT' }) */
     /* console.log(response) */
-    /* const result = client.media.search({ tags: [], limit: 100, offset: 0 }) */
-    request_rpc('/api/rpc', fetch, [], ['media'], 'search', {  })
+    /* const response = await client.media.search({ tags: [], limit: 100, offset: 0 }) */
+    /* const response = await request_rpc('/api/rpc', fetch, [], ['media'], 'search', [{}]) */
+    /* console.log({ response }) */
 
   }
 
