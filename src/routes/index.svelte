@@ -4,38 +4,30 @@
   /* import fetch from 'cross-fetch' */
   import type { ForagerSpec } from '../spec'
 
-  // note in the browser the connection string could be as simple as '/rpc'
-
-  /* class Fetcher { */
-  /*   constructor(fetch_impl) { */
-  /*     this.fetch_impl = fetch_impl */
-  /*   } */
-  /* } */
+  let tags = []
+  let media_references = []
   const client = create_rpc_client<ForagerSpec>(`/api/rpc`)
   onMount(async () => {
 
-    /* console.log({ result }) */
-
-    /* click() */
-    const response = await client.media.search({ tags: [], limit: 100, offset: 0 })
-    console.log({ response })
+    tags = await client.tag.list()
+    const result = await client.media.search({ tags: [{ name: 'drawing', group: 'original' }], limit: 100, offset: 0 })
+    media_references = [result.result[0]]
   })
-
-  async function click() {
-    /* const response = await fetch('/api/rpc', { method: 'PUT' }) */
-    /* console.log(response) */
-    /* const response = await client.media.search({ tags: [], limit: 100, offset: 0 }) */
-    /* const response = await request_rpc('/api/rpc', fetch, [], ['media'], 'search', [{}]) */
-    /* console.log({ response }) */
-
-  }
-
-  let x = 'hey'
 
 </script>
 
 <h1>Welcome to SvelteKit</h1>
-{x}
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<h4>Tags:</h4>
+<div>
+  {#each tags as tag}
+    {tag.group}:{tag.name}
+  {/each}
+</div>
 
-<button on:click={click}>client</button>
+<div>
+  {#each media_references as media_reference}
+    <div>
+      <img src='/api/thumbnail/{media_reference.id}' alt='/api/thumbnail/{media_reference.id}'>
+    </div>
+  {/each}
+</div>
