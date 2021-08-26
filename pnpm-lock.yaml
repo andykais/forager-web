@@ -1,12 +1,12 @@
 lockfileVersion: 5.3
 
 specifiers:
-  '@sveltejs/kit': next
-  svelte: ^3.34.0
+  '@sveltejs/kit': ^1.0.0-next.157
+  svelte: ^3.42.1
   svelte-check: ^2.2.4
-  svelte-preprocess: ^4.0.0
+  svelte-preprocess: ^4.7.4
   tslib: ^2.0.0
-  typescript: ^4.0.0
+  typescript: ^4.3.5
 
 devDependencies:
   '@sveltejs/kit': 1.0.0-next.157_svelte@3.42.1

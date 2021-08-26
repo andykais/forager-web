@@ -8,18 +8,21 @@ class ForagerApiServer {
   media = {
     search: async (query_data: any) => {
       return forager.media.search(query_data)
+    },
+    list: () => {
+      const result = forager.media.list()
+      return result
     }
   }
   tag = {
     list: () => {
       const result =  forager.tag.list()
-      console.log({ result })
       return result
     }
   }
 }
-// const rpc_server = create_rpc_server<ForagerSpec>(new ForagerApiServer())
-const rpc_server = create_rpc_server<ForagerSpec>(forager)
+const rpc_server = create_rpc_server<ForagerSpec>(new ForagerApiServer())
+// const rpc_server = create_rpc_server<ForagerSpec>(forager)
 
 export async function put(req: Request) {
   return await rpc_server.sveltekit_handler(req)
