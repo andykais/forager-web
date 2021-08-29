@@ -1,0 +1,43 @@
+import { create_rpc_server } from 'ts-rpc/server'
+import type { Forager } from 'forager'
+import type { ForagerSpec } from '../../spec'
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
+const { Forager } = require('forager')
+
+// const database_path = 'sqlite.db'
+const database_path = '/home/andrew/Code/development/forager/normal.db'
+const forager: Forager = new Forager({ database_path, log_level: 'info' })
+forager.init()
+
+
+class ForagerApiServer {
+  media = {
+    search: async (query_data: any) => {
+      return forager.media.search(query_data)
+    },
+    get_file_info: async (query_data) => {
+      const data = forager.media.get_file_info(query_data)
+      console.log({ data })
+      return data
+    },
+    list: () => {
+      const result = forager.media.list()
+      return result
+    }
+  }
+  tag = {
+    list: () => {
+      const result =  forager.tag.list()
+      return result
+    }
+  }
+}
+
+export async function handle({ request, resolve }) {
+  request.locals.forager = forager
+  request.locals.rpc_server = create_rpc_server<ForagerSpec>(new ForagerApiServer())
+  return await resolve(request)
+}
+
+export { forager }

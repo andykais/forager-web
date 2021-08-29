@@ -3,9 +3,9 @@ import type { Request } from '@sveltejs/kit'
 export async function get(request: Request) {
   const { forager } = request.locals
   const { media_reference_id } = request.params
-  const thumbnail = forager.media.get_thumbnail(media_reference_id)
+  const media_file_chunks = forager.media.get_file(media_reference_id)
   return {
     headers: {'content-type': 'application/octet-stream'},
-    body: thumbnail
+    body: media_file_chunks
   }
 }

@@ -1,15 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { create_rpc_client } from 'ts-rpc/client'
-  /* import fetch from 'cross-fetch' */
-  import type { ForagerSpec } from '../spec'
+  import { client } from '../client'
+  import MediaFile from '../components/media_file.svelte'
 
   let tags = []
   let media_references = []
   let total_media_references = 0
-  const client = create_rpc_client<ForagerSpec>(`/api/rpc`)
-  onMount(async () => {
+  let show_media_file = false
+  let current_media_reference_id
 
+  onMount(async () => {
     tags = await client.tag.list()
     /* const result = await client.media.search({ tags: [{ name: 'drawing', group: 'original' }], limit: 100, offset: 0 }) */
     const result = await client.media.list()
@@ -18,28 +18,58 @@
     console.log({ media_references })
   })
 
+  function handle_click_thumbnail(media_reference_id: number) {
+    current_media_reference_id = media_reference_id
+    show_media_file = true
+  }
 </script>
 
-<h4>Tags:</h4>
-<div id="tags">
-  {#each tags as tag}
-    <div class="tag" style="background-color: #{tag.color}">{tag.group}:{tag.name}</div>
-  {/each}
-</div>
-
-<h4>Media ({total_media_references} total)</h4>
-<div id="thumbnail-grid">
-  {#each media_references as media_reference}
-    <div class="thumbnail" tabindex="0">
-      <img src="/api/thumbnail/{media_reference.id}" alt="/api/thumbnail/{media_reference.id}">
+<div class="container">
+  {#if show_media_file}
+    <div class="media-file-container">
+      <MediaFile media_reference_id={current_media_reference_id} />
     </div>
+  {/if}
+
+  <h4>Tags:</h4>
+  <div id="tags">
+    {#each tags as tag}
+      <div class="tag" style="background-color: #{tag.color}">{tag.group}:{tag.name}</div>
+    {/each}
+  </div>
+
+  <h4>Media ({total_media_references} total)</h4>
+  <div id="thumbnail-grid">
+    {#each media_references as media_reference}
       <!--
-      <img class="thumbnail" src='/api/thumbnail/{media_reference.id}' alt='/api/thumbnail/{media_reference.id}'>
+      <a class="thumbnail" href="/media_file/{media_reference.id}">
+      </a>
       -->
-  {/each}
+      <div class="thumbnail-outer">
+        <div class="thumbnail" on:click={() => handle_click_thumbnail(media_reference.id)}>
+          <img src="/api/thumbnail/{media_reference.id}" alt="/api/thumbnail/{media_reference.id}" />
+        <!--
+        -->
+        </div>
+      </div>
+    {/each}
+  </div>
+
 </div>
 
 <style>
+  .container {
+    /* height: 100%; */
+    /* position: relative; */
+  }
+  .media-file-container {
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+  }
   #tags {
     font-family: monospace;
     height: 200px;
@@ -54,23 +84,35 @@
   }
 
   #thumbnail-grid {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+    margin: 10px;
+    width: calc(100% - 20px);
+  }
+  .thumbnail-outer {
+    height: 200px;
+    background-color: green;
+    display: inline-flex;
+    justify-content: center;
   }
   .thumbnail {
-    box-shadow: 1px 1px 8px 1px rgba(0,0,0,0.4);
+    display: inline-block;
+    background-color: red;
+    box-shadow: 1px 1px 8px 1px rgba(0, 0, 0, 0.4);
     border-radius: 5px;
-    margin: 10px;
-    padding: 5px;
-    display: inline;
-    height: 200px;
-    width: 200px;
-    display: flex;
+    height: 100%;
+    display: inline-flex;
+    flex-flow: column;
     justify-content: center;
   }
 
   .thumbnail > img {
-    height: 100%;
+    max-height: 100%;
+    max-width: 100%;
+    /* min-width: 100%; */
+    /* max-height: 100%; */
+    /* min-height: 100%; */
+    /* height: 100%; */
   }
 </style>
