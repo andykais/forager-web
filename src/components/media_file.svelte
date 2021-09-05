@@ -41,7 +41,7 @@
     height: 100%;
     width: 100%;
     display: grid;
-    padding: 10px;
+    /* padding: 10px; */
     justify-items: center;
   }
   video.media-file {
@@ -49,9 +49,11 @@
   }
 
   .media-file {
+    max-height: 100%;
+    max-width: 100%;
     /* background-color: red; */
-    width: auto;
-    height: auto;
+    /* width: auto; */
+    /* height: auto; */
     /* width: calc(100% - 20px); */
     /* height: calc(100% - 20px); */
   }

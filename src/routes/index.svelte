@@ -22,7 +22,13 @@
     current_media_reference_id = media_reference_id
     show_media_file = true
   }
+
+  function handle_keypress(e) {
+    if (e.code === "Escape") show_media_file = false
+  }
 </script>
+
+<svelte:window on:keydown={handle_keypress} />
 
 <div class="container">
   {#if show_media_file}
@@ -39,22 +45,26 @@
   </div>
 
   <h4>Media ({total_media_references} total)</h4>
-  <div id="thumbnail-grid">
-    {#each media_references as media_reference}
-      <!--
-      <a class="thumbnail" href="/media_file/{media_reference.id}">
-      </a>
-      -->
-      <div class="thumbnail-outer">
-        <div class="thumbnail" on:click={() => handle_click_thumbnail(media_reference.id)}>
-          <img src="/api/thumbnail/{media_reference.id}" alt="/api/thumbnail/{media_reference.id}" />
+  <div id="thumbnail-grid-outer">
+    <div id="thumbnail-grid">
+      {#each media_references as media_reference}
         <!--
+        <a class="thumbnail" href="/media_file/{media_reference.id}">
+        </a>
         -->
+        <div class="thumbnail-outer">
+          <div class="thumbnail" on:click={() => handle_click_thumbnail(media_reference.id)}>
+            <img
+              src="/api/thumbnail/{media_reference.id}"
+              alt="/api/thumbnail/{media_reference.id}"
+            />
+            <!--
+          -->
+          </div>
         </div>
-      </div>
-    {/each}
+      {/each}
+    </div>
   </div>
-
 </div>
 
 <style>
@@ -64,6 +74,7 @@
   }
   .media-file-container {
     position: fixed;
+    /* position: sticky; */
     top: 0;
     height: 100%;
     width: 100%;
@@ -83,15 +94,25 @@
     border-radius: 2px;
   }
 
-  #thumbnail-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 20px;
+  #thumbnail-grid-outer {
     margin: 10px;
     width: calc(100% - 20px);
   }
+  #thumbnail-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+    /* display: grid; */
+    /* grid-template-columns: repeat(3, 1fr); */
+    /* grid-gap: 20px; */
+    /* margin: 10px; */
+    /* width: calc(100% - 20px); */
+  }
   .thumbnail-outer {
+    margin: 10px 0;
     height: 200px;
+    width: 200px;
     background-color: green;
     display: inline-flex;
     justify-content: center;
@@ -108,11 +129,9 @@
   }
 
   .thumbnail > img {
-    max-height: 100%;
-    max-width: 100%;
-    /* min-width: 100%; */
+    max-height: 200px;
+    max-width: 200px;
     /* max-height: 100%; */
-    /* min-height: 100%; */
-    /* height: 100%; */
+    /* max-width: 100%; */
   }
 </style>
