@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@sveltejs/kit': ^1.0.0-next.157
   arg: ^5.0.1
+  date-fns: ^2.23.0
   svelte: ^3.42.1
   svelte-check: ^2.2.4
   svelte-preprocess: ^4.7.4
@@ -11,6 +12,7 @@ specifiers:
 
 dependencies:
   arg: 5.0.1
+  date-fns: 2.23.0
 
 devDependencies:
   '@sveltejs/kit': 1.0.0-next.157_svelte@3.42.1
@@ -177,6 +179,11 @@ packages:
   /concat-map/0.0.1:
     resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
     dev: true
+
+  /date-fns/2.23.0:
+    resolution: {integrity: sha512-5ycpauovVyAk0kXNZz6ZoB9AYMZB4DObse7P3BPWmyEjXNORTI8EJ6X0uaSAq4sCHzM1uajzrkr6HnsLQpxGXA==}
+    engines: {node: '>=0.11'}
+    dev: false
 
   /debug/4.3.2:
     resolution: {integrity: sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==}

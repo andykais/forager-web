@@ -2,6 +2,8 @@
   import { onMount } from 'svelte'
   import { client } from '../client'
   import MediaFile from '../components/media_file.svelte'
+  import IntersectionObserver from '../components/intersection-observer.svelte'
+  import Thumbnail from '../components/thumbnail.svelte'
 
   let tags = []
   let media_references = []
@@ -9,14 +11,37 @@
   let show_media_file = false
   let current_media_reference_id
 
+  let thumbnail_query = { limit: 100 }
+  let has_more_thumbnails = true
+  let loading_thumbnails = false
+  let last_thumbnail_el
+  let intersecting = false
+  $: {
+    if (last_thumbnail_el && intersecting) {
+      load_thumbnails()
+    }
+  }
+
   onMount(async () => {
     tags = await client.tag.list()
+    tags.sort((a, b) => a.group.localeCompare(b.group))
+    console.log({ tags })
     /* const result = await client.media.search({ tags: [{ name: 'drawing', group: 'original' }], limit: 100, offset: 0 }) */
-    const result = await client.media.list()
-    total_media_references = result.total
-    media_references = result.result
-    console.log({ media_references })
+    await load_thumbnails()
   })
+
+  async function load_thumbnails() {
+    if (has_more_thumbnails) {
+      loading_thumbnails = true
+      const result = await client.media.list(thumbnail_query)
+      total_media_references = result.total
+      media_references = [...media_references, ...result.result]
+      thumbnail_query.cursor = result.cursor
+      console.log('loaded', result.result.length, 'results')
+      loading_thumbnails = false
+      has_more_thumbnails = Boolean(result.result.length)
+    }
+  }
 
   function handle_click_thumbnail(media_reference_id: number) {
     current_media_reference_id = media_reference_id
@@ -24,7 +49,7 @@
   }
 
   function handle_keypress(e) {
-    if (e.code === "Escape") show_media_file = false
+    if (e.code === 'Escape') show_media_file = false
   }
 </script>
 
@@ -40,7 +65,7 @@
   <h4>Tags:</h4>
   <div id="tags">
     {#each tags as tag}
-      <div class="tag" style="background-color: #{tag.color}">{tag.group}:{tag.name}</div>
+      <div class="tag" style="background-color: {tag.color}">{tag.group}:{tag.name}</div>
     {/each}
   </div>
 
@@ -52,17 +77,25 @@
         <a class="thumbnail" href="/media_file/{media_reference.id}">
         </a>
         -->
-        <div class="thumbnail-outer">
-          <div class="thumbnail" on:click={() => handle_click_thumbnail(media_reference.id)}>
-            <img
-              src="/api/thumbnail/{media_reference.id}"
-              alt="/api/thumbnail/{media_reference.id}"
+        {#if media_reference.id === media_references[media_references.length - 1].id}
+          <IntersectionObserver element={last_thumbnail_el} bind:intersecting once={true}>
+            <Thumbnail
+              {media_reference}
+              bind:thumbnail_el={last_thumbnail_el}
+              on_click={handle_click_thumbnail}
             />
-            <!--
-          -->
-          </div>
-        </div>
+          </IntersectionObserver>
+        {:else}
+          <Thumbnail
+            {media_reference}
+            bind:thumbnail_el={last_thumbnail_el}
+            on_click={handle_click_thumbnail}
+          />
+        {/if}
       {/each}
+      {#if loading_thumbnails}
+        LOADING...
+      {/if}
     </div>
   </div>
 </div>

@@ -19,11 +19,10 @@ class ForagerApiServer {
     },
     get_file_info: async (query_data) => {
       const data = forager.media.get_file_info(query_data)
-      console.log({ data })
       return data
     },
-    list: () => {
-      const result = forager.media.list()
+    list: (query_data) => {
+      const result = forager.media.list(query_data)
       return result
     }
   }
