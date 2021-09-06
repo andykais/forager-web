@@ -1,25 +1,28 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte'
   import * as date_fns from 'date-fns'
 
   export let media_reference
-  export let on_click
-  export let thumbnail_el
+  export let focused = false
 
-  let source_created_ago = date_fns.formatDistanceToNow(new Date(media_reference.source_created_at))
+  const { source_created_at } = media_reference
+  const dispatch = createEventDispatcher()
+  let source_created_ago = source_created_at ? date_fns.formatDistanceToNow(new Date(source_created_at)) : 'unknown'
 
-  function handle_click_thumbnail() {
-    if (on_click) on_click(media_reference.id)
+  function handle_click_thumbnail(e) {
+    e.preventDefault()
+    dispatch('click', media_reference.id)
   }
 </script>
 
 <div class="thumbnail-plus-info">
-  <div class="thumbnail-outer" bind:this={thumbnail_el} tabindex="0">
-    <div class="thumbnail" on:click={() => handle_click_thumbnail(media_reference.id)}>
+  <a class="thumbnail-outer" href="#" on:click|preventDefault class:focused={focused}>
+    <div class="thumbnail" >
       <img src="/api/thumbnail/{media_reference.id}" alt="/api/thumbnail/{media_reference.id}" />
       <!--
     -->
     </div>
-  </div>
+  </a>
   <div class="thumbnail-info">
     <span>★ ★ ★ ☆ ☆</span>
     <span>created {source_created_ago} ago</span>
@@ -42,6 +45,9 @@
     border-radius: 5px;
     box-shadow: 1px 0px 3px 1px rgba(0, 0, 0, 0.2);
     /* border: 0.5px solid rgba(255,255,255,0.9); */
+  }
+  .focused {
+    background-color: rgba(0,0,0,0.4);
   }
   .thumbnail {
     border-radius: 5px;

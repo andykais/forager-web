@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import { client } from '../client'
   import MediaFile from '../components/media_file.svelte'
-  import IntersectionObserver from '../components/intersection-observer.svelte'
+  import IntersectionObserver from '../components/intersection_observer.svelte'
   import Thumbnail from '../components/thumbnail.svelte'
 
   let tags = []
@@ -11,16 +11,16 @@
   let show_media_file = false
   let current_media_reference_id
 
-  let thumbnail_query = { limit: 100 }
+  let thumbnail_query = { limit: 5 }
   let has_more_thumbnails = true
   let loading_thumbnails = false
-  let last_thumbnail_el
-  let intersecting = false
-  $: {
-    if (last_thumbnail_el && intersecting) {
-      load_thumbnails()
-    }
-  }
+  /* let last_thumbnail_el */
+  /* let intersecting = false */
+  /* $: { */
+  /*   if (last_thumbnail_el && intersecting) { */
+  /*     load_thumbnails() */
+  /*   } */
+  /* } */
 
   onMount(async () => {
     tags = await client.tag.list()
@@ -43,13 +43,23 @@
     }
   }
 
-  function handle_click_thumbnail(media_reference_id: number) {
+  const handle_click_thumbnail = (media_reference_id: number) => () => {
+    console.log({ media_reference_id })
     current_media_reference_id = media_reference_id
     show_media_file = true
   }
 
   function handle_keypress(e) {
     if (e.code === 'Escape') show_media_file = false
+  }
+
+  async function handle_intersecting(media_reference) {
+    /* console.log('handle_intersection', el.detail.target) */
+    const last_media_reference = media_references[media_references.length - 1]
+    if (media_reference.id === last_media_reference.id) {
+      console.log('load more please')
+      await load_thumbnails()
+    }
   }
 </script>
 
@@ -73,25 +83,12 @@
   <div id="thumbnail-grid-outer">
     <div id="thumbnail-grid">
       {#each media_references as media_reference}
-        <!--
-        <a class="thumbnail" href="/media_file/{media_reference.id}">
-        </a>
-        -->
-        {#if media_reference.id === media_references[media_references.length - 1].id}
-          <IntersectionObserver element={last_thumbnail_el} bind:intersecting once={true}>
-            <Thumbnail
-              {media_reference}
-              bind:thumbnail_el={last_thumbnail_el}
-              on_click={handle_click_thumbnail}
-            />
-          </IntersectionObserver>
-        {:else}
+        <IntersectionObserver on:intersect={() => handle_intersecting(media_reference)}>
           <Thumbnail
             {media_reference}
-            bind:thumbnail_el={last_thumbnail_el}
-            on_click={handle_click_thumbnail}
-          />
-        {/if}
+            on:click={handle_click_thumbnail(media_reference.id)}
+            focused={current_media_reference_id === media_reference.id}/>
+        </IntersectionObserver>
       {/each}
       {#if loading_thumbnails}
         LOADING...
@@ -102,12 +99,10 @@
 
 <style>
   .container {
-    /* height: 100%; */
-    /* position: relative; */
+    width: 100%;
   }
   .media-file-container {
     position: fixed;
-    /* position: sticky; */
     top: 0;
     height: 100%;
     width: 100%;
@@ -122,7 +117,7 @@
   }
 
   .tag {
-    padding: 0 5px;
+    padding: 1px 5px;
     margin: 2px;
     border-radius: 2px;
   }
@@ -136,35 +131,5 @@
     flex-wrap: wrap;
     justify-content: space-between;
     width: 100%;
-    /* display: grid; */
-    /* grid-template-columns: repeat(3, 1fr); */
-    /* grid-gap: 20px; */
-    /* margin: 10px; */
-    /* width: calc(100% - 20px); */
-  }
-  .thumbnail-outer {
-    margin: 10px 0;
-    height: 200px;
-    width: 200px;
-    background-color: green;
-    display: inline-flex;
-    justify-content: center;
-  }
-  .thumbnail {
-    display: inline-block;
-    background-color: red;
-    box-shadow: 1px 1px 8px 1px rgba(0, 0, 0, 0.4);
-    border-radius: 5px;
-    height: 100%;
-    display: inline-flex;
-    flex-flow: column;
-    justify-content: center;
-  }
-
-  .thumbnail > img {
-    max-height: 200px;
-    max-width: 200px;
-    /* max-height: 100%; */
-    /* max-width: 100%; */
   }
 </style>

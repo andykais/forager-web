@@ -45,11 +45,11 @@
     justify-items: center;
   }
   video.media-file {
-    height: 100%;
+    /* height: 100%; */
   }
 
   .media-file {
-    max-height: 100%;
+    max-height: 100vh;
     max-width: 100%;
     /* background-color: red; */
     /* width: auto; */
