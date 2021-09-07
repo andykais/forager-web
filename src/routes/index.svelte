@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { client } from '../client'
+  import { KeyboardShortcuts } from '../keyboard-shortcuts'
   import MediaFile from '../components/media_file.svelte'
   import IntersectionObserver from '../components/intersection_observer.svelte'
   import Thumbnail from '../components/thumbnail.svelte'
@@ -9,7 +10,8 @@
   let media_references = []
   let total_media_references = 0
   let show_media_file = false
-  let current_media_reference_id
+  let current_media_index = 0
+  $: current_media_reference_id = media_references[current_media_index]?.id
 
   let thumbnail_query = { limit: 5 }
   let has_more_thumbnails = true
@@ -35,24 +37,40 @@
     }
   }
 
-  const handle_click_thumbnail = (media_reference_id: number) => () => {
-    current_media_reference_id = media_reference_id
-    show_media_file = true
-  }
-
-  function handle_keypress(e) {
-    if (e.code === 'Escape') show_media_file = false
-  }
-
   const handle_intersecting = (media_reference_id: number) => async () => {
     const last_media_reference = media_references[media_references.length - 1]
     if (media_reference_id === last_media_reference.id) {
       await load_thumbnails()
     }
   }
+
+  const keyboard_shortcuts = new KeyboardShortcuts({
+    JumpToTop: (e) => {},
+    JumpToBottom: (e) => {},
+
+    OpenMedia: (e) => {
+      show_media_file = true
+    },
+    CloseMedia: (e) => {
+      show_media_file = false
+    },
+    NextMedia: (e) => {
+      current_media_index = (current_media_index + 1) % media_references.length
+    },
+    PrevMedia: (e) => {
+      current_media_index = Math.max(current_media_index - 1, 0)
+    },
+
+    Star1: (e) => {},
+    Star2: (e) => {},
+    Star3: (e) => {},
+    Star4: (e) => {},
+    Star5: (e) => {},
+    ToggleViewTags: (e) => {},
+  })
 </script>
 
-<svelte:window on:keydown={handle_keypress} />
+<svelte:window on:keydown={keyboard_shortcuts.handler} />
 
 <div class="container">
   {#if show_media_file}
@@ -73,10 +91,7 @@
     <div id="thumbnail-grid">
       {#each media_references as media_reference}
         <IntersectionObserver on:intersect={handle_intersecting(media_reference.id)}>
-          <Thumbnail
-            {media_reference}
-            on:click={handle_click_thumbnail(media_reference.id)}
-            focused={current_media_reference_id === media_reference.id}/>
+          <Thumbnail {media_reference} focused={current_media_reference_id === media_reference.id}/>
         </IntersectionObserver>
       {/each}
       {#if loading_thumbnails}
