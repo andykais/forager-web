@@ -20,7 +20,6 @@
   onMount(async () => {
     tags = await client.tag.list()
     tags.sort((a, b) => a.group.localeCompare(b.group))
-    console.log({ tags })
     /* const result = await client.media.search({ tags: [{ name: 'drawing', group: 'original' }], limit: 100, offset: 0 }) */
     await load_thumbnails()
   })
@@ -31,7 +30,6 @@
       const result = await client.media.list(thumbnail_query)
       total_media_references = result.total
       media_references = [...media_references, ...result.result]
-      console.log(media_references)
       thumbnail_query.cursor = result.cursor
       loading_thumbnails = false
       has_more_thumbnails = Boolean(result.result.length)

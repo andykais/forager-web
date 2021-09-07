@@ -7,6 +7,7 @@ const actions = {
   NextMedia: 'ArrowRight',
   PrevMedia: 'ArrowLeft',
   ToggleFitMedia: null,
+  ToggleFullScreen: 'KeyF',
 
   Star1: null,
   Star2: null,
@@ -28,6 +29,7 @@ const keycode_actions: Record<null | string, KeyboardAction> = Object.keys(actio
 )
 
 class KeyboardShortcuts {
+  private disabled = false
   public constructor(defined_actions: Record<KeyboardAction, () => void>) {
     this.defined_actions = defined_actions
   }
@@ -38,6 +40,13 @@ class KeyboardShortcuts {
         this.defined_actions[action](e)
       }
     }
+  }
+
+  public disable() {
+    this.disabled = true
+  }
+  public enable() {
+    this.disabled = false
   }
 }
 
