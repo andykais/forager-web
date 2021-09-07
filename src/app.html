@@ -6,15 +6,23 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		%svelte.head%
     <style>
+      @font-face {
+        font-family: 'roboto';
+        src: url("/fonts/roboto/Roboto-Regular.ttf");
+      }
+
       html, body {
         font-family: roboto;
         margin: 0;
-        background-color: #e6e6e6;
+        background-color: #eceae3;
       }
       html, body, #svelte {
         width: 100%;
         min-height: 100%;
         display: flex;
+      }
+      h1,h2,h3,h4,h5 {
+        margin: 0;
       }
     </style>
 	</head>

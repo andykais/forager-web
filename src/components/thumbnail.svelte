@@ -11,13 +11,13 @@
 </script>
 
 <div class="thumbnail-plus-info">
-  <a class="thumbnail-outer" href="#" on:click|preventDefault class:focused={focused}>
+  <div class="thumbnail-outer" on:click class:focused={focused}>
     <div class="thumbnail" >
       <img src="/api/thumbnail/{media_reference.id}" alt="/api/thumbnail/{media_reference.id}" />
       <!--
     -->
     </div>
-  </a>
+  </div>
   <div class="thumbnail-info">
     <span>★ ★ ★ ☆ ☆</span>
     <span>created {source_created_ago} ago</span>
@@ -37,13 +37,16 @@
     display: inline-flex;
     justify-content: center;
 
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(0,0,0,0.2);
     border-radius: 5px;
     box-shadow: 1px 0px 3px 1px rgba(0, 0, 0, 0.2);
-    border: 5px solid rgba(255,255,255,0.3);
+    border: 5px solid rgba(255,255,255,0.6);
   }
   .focused {
-    background-color: rgba(0,0,0,0.3);
+    box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.3);
+    /* box-shadow:none; */
+    border: 5px solid rgba(255,255,255,0.9);
+    background-color: rgba(255,255,255,0.9);
   }
   .thumbnail {
     border-radius: 5px;

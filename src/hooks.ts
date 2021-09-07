@@ -5,8 +5,8 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 const { Forager } = require('forager')
 
-// const database_path = 'sqlite.db'
-const database_path = '/home/andrew/Code/development/forager/normal.db'
+const database_path = 'normal.db'
+// const database_path = '/home/andrew/Code/development/forager/normal.db'
 // const database_path = '/media/veracrypt7/scrapers/likee.video/sqlite.db'
 const forager: Forager = new Forager({ database_path, log_level: 'info' })
 forager.init()
@@ -23,6 +23,7 @@ class ForagerApiServer {
     },
     list: (query_data) => {
       const result = forager.media.list(query_data)
+      // console.log(result)
       return result
     }
   }

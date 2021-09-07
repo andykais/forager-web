@@ -31,6 +31,7 @@
       const result = await client.media.list(thumbnail_query)
       total_media_references = result.total
       media_references = [...media_references, ...result.result]
+      console.log(media_references)
       thumbnail_query.cursor = result.cursor
       loading_thumbnails = false
       has_more_thumbnails = Boolean(result.result.length)
@@ -44,6 +45,10 @@
     }
   }
 
+  const handle_thumbnail_click = (media_index) => () => {
+    current_media_index = media_index
+    show_media_file = true
+  }
   const keyboard_shortcuts = new KeyboardShortcuts({
     JumpToTop: (e) => {},
     JumpToBottom: (e) => {},
@@ -58,7 +63,7 @@
       current_media_index = (current_media_index + 1) % media_references.length
     },
     PrevMedia: (e) => {
-      current_media_index = Math.max(current_media_index - 1, 0)
+      current_media_index = (media_references.length + (current_media_index - 1)) % media_references.length
     },
 
     Star1: (e) => {},
@@ -89,9 +94,9 @@
   <h4>Media ({total_media_references} total)</h4>
   <div id="thumbnail-grid-outer">
     <div id="thumbnail-grid">
-      {#each media_references as media_reference}
+      {#each media_references as media_reference, media_index}
         <IntersectionObserver on:intersect={handle_intersecting(media_reference.id)}>
-          <Thumbnail {media_reference} focused={current_media_reference_id === media_reference.id}/>
+          <Thumbnail {media_reference} on:click={handle_thumbnail_click(media_index)} focused={current_media_reference_id === media_reference.id}/>
         </IntersectionObserver>
       {/each}
       {#if loading_thumbnails}
@@ -104,6 +109,7 @@
 <style>
   .container {
     width: 100%;
+    padding: 5px;
   }
   .media-file-container {
     position: fixed;
@@ -131,9 +137,9 @@
     width: calc(100% - 20px);
   }
   #thumbnail-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    justify-items: center;
+    grid-gap: 10px;
   }
 </style>
