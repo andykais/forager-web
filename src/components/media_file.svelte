@@ -4,17 +4,21 @@
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
 
   onMount(async () => {
+    await load_media_file_info(media_reference_id)
+  })
+  async function load_media_file_info(media_reference_id) {
     const data = await client.media.get_file_info(media_reference_id)
     media_reference = data.media_reference
     media_file = data.media_file
     tags = data.tags
-  })
+  }
   export let media_reference_id
-  let media_file
+  let media_file = null
   let media_reference
   let tags
   let media_element
   let is_fullscreen = false
+  $: load_media_file_info(media_reference_id)
 
   function open_fullscreen(element) {
     if (element.requestFullscreen) {
@@ -39,13 +43,12 @@
       }
     }
   })
-  console.log({ keyboard_shortcuts })
 </script>
 
 <div class="container">
   {#if media_file}
     {#if media_file.media_type === 'IMAGE'}
-      <img bind:this={media_element} class="media-file" src="/api/media_file/{media_reference_id}" alt="no bueno">
+      <img bind:this={media_element} class="media-file" src="/api/media_file/{media_reference.id}" alt="no bueno">
     {:else if media_file.media_type === 'VIDEO'}
     <video
       bind:this={media_element}
