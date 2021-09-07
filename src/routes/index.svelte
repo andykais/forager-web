@@ -14,13 +14,6 @@
   let thumbnail_query = { limit: 5 }
   let has_more_thumbnails = true
   let loading_thumbnails = false
-  /* let last_thumbnail_el */
-  /* let intersecting = false */
-  /* $: { */
-  /*   if (last_thumbnail_el && intersecting) { */
-  /*     load_thumbnails() */
-  /*   } */
-  /* } */
 
   onMount(async () => {
     tags = await client.tag.list()
@@ -37,14 +30,12 @@
       total_media_references = result.total
       media_references = [...media_references, ...result.result]
       thumbnail_query.cursor = result.cursor
-      console.log('loaded', result.result.length, 'results')
       loading_thumbnails = false
       has_more_thumbnails = Boolean(result.result.length)
     }
   }
 
   const handle_click_thumbnail = (media_reference_id: number) => () => {
-    console.log({ media_reference_id })
     current_media_reference_id = media_reference_id
     show_media_file = true
   }
@@ -53,11 +44,9 @@
     if (e.code === 'Escape') show_media_file = false
   }
 
-  async function handle_intersecting(media_reference) {
-    /* console.log('handle_intersection', el.detail.target) */
+  const handle_intersecting = (media_reference_id: number) => async () => {
     const last_media_reference = media_references[media_references.length - 1]
-    if (media_reference.id === last_media_reference.id) {
-      console.log('load more please')
+    if (media_reference_id === last_media_reference.id) {
       await load_thumbnails()
     }
   }
@@ -83,7 +72,7 @@
   <div id="thumbnail-grid-outer">
     <div id="thumbnail-grid">
       {#each media_references as media_reference}
-        <IntersectionObserver on:intersect={() => handle_intersecting(media_reference)}>
+        <IntersectionObserver on:intersect={handle_intersecting(media_reference.id)}>
           <Thumbnail
             {media_reference}
             on:click={handle_click_thumbnail(media_reference.id)}
@@ -129,7 +118,7 @@
   #thumbnail-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-around;
     width: 100%;
   }
 </style>

@@ -18,9 +18,6 @@
   {#if media_file}
     {#if media_file.media_type === 'IMAGE'}
       <img class="media-file" src="/api/media_file/{media_reference_id}" alt="no bueno">
-      <!--
-      <div class="media-file" />
-      -->
     {:else if media_file.media_type === 'VIDEO'}
     <video
       style="max-width: {media_file.width}; max-height: {media_file.height}"
@@ -51,10 +48,5 @@
   .media-file {
     max-height: 100vh;
     max-width: 100%;
-    /* background-color: red; */
-    /* width: auto; */
-    /* height: auto; */
-    /* width: calc(100% - 20px); */
-    /* height: calc(100% - 20px); */
   }
 </style>
