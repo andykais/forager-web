@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import { client } from '../client'
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
+  import Search from '../components/search.svelte'
   import MediaFile from '../components/media_file.svelte'
   import IntersectionObserver from '../components/intersection_observer.svelte'
   import Thumbnail from '../components/thumbnail.svelte'
@@ -81,6 +82,8 @@
       <MediaFile media_reference_id={current_media_reference_id} />
     </div>
   {/if}
+
+  <Search />
 
   <h4>Tags:</h4>
   <div id="tags">
