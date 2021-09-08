@@ -34,6 +34,7 @@ class KeyboardShortcuts {
     this.defined_actions = defined_actions
   }
   public handler = (e) => {
+    if (this.disabled) return
     const action = keycode_actions[e.code]
     if (action) {
       if (this.defined_actions[action]) {

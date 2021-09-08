@@ -17,6 +17,7 @@
   let thumbnail_query = { limit: 5 }
   let has_more_thumbnails = true
   let loading_thumbnails = false
+  let search_focus = false
 
   onMount(async () => {
     tags = await client.tag.list()
@@ -72,6 +73,10 @@
     Star5: (e) => {},
     ToggleViewTags: (e) => {},
   })
+  $: {
+    if (search_focus) keyboard_shortcuts.disable()
+    else keyboard_shortcuts.enable()
+  }
 </script>
 
 <svelte:window on:keydown={keyboard_shortcuts.handler} />
@@ -83,14 +88,16 @@
     </div>
   {/if}
 
-  <Search />
+  <Search bind:focus={search_focus} />
 
+  <!--
   <h4>Tags:</h4>
   <div id="tags">
     {#each tags as tag}
       <div class="tag" style="background-color: {tag.color}">{tag.group}:{tag.name}</div>
     {/each}
   </div>
+  -->
 
   <h4>Media ({total_media_references} total)</h4>
   <div id="thumbnail-grid-outer">
