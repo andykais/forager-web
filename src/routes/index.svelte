@@ -76,7 +76,7 @@
     JumpToBottom: (e) => {},
 
     OpenMedia: (e) => {
-      show_media_file = true
+      if (media_references.length) show_media_file = true
     },
     CloseMedia: (e) => {
       show_media_file = false

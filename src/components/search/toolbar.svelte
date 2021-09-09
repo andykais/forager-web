@@ -6,12 +6,13 @@
 
   let input = ''
   let tag_search_focus = false
+  let stars_filter_focus = false
   let search_query = {}
 
   export let focus = false
   export let on_submit
 
-  $: focus = tag_search_focus // || sort_focus
+  $: focus = tag_search_focus || stars_filter_focus // || sort_focus
 
   function handle_tag_select(tag_ids) {
     search_query = {...search_query, tag_ids}
@@ -28,7 +29,7 @@
 <div class="container">
   <TagSearch bind:input bind:focus={tag_search_focus} on_submit={handle_tag_select} />
 
-  <StarsSearch on_submit={handle_stars_select}/>
+  <StarsSearch bind:focus={stars_filter_focus} on_submit={handle_stars_select}/>
 
   <div>
     <h4>Sort</h4>
