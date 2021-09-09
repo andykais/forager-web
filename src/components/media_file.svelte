@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { client } from '../client'
+  /* import { client } from '../client' */
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
 
-  onMount(async () => {
+  onMount(() => {
     /* await load_media_file_info(media_reference_id) */
     document.addEventListener('fullscreenchange', handle_escape_fullscreen, false);
     document.addEventListener('mozfullscreenchange', handle_escape_fullscreen, false);
@@ -24,22 +24,24 @@
      }
   }
 
-  async function load_media_file_info(media_reference_id) {
-    console.log('loading data info')
-    const data = await client.media.get_file_info(media_reference_id)
-    media_reference = data.media_reference
-    media_file = data.media_file
-    tags = data.tags
-  }
+  /* async function load_media_file_info(media_reference_id) { */
+  /*   console.log('loading data info') */
+  /*   const data = await client.media.get_file_info(media_reference_id) */
+  /*   media_reference = data.media_reference */
+  /*   media_file = data.media_file */
+  /*   tags = data.tags */
+  /* } */
   export let media_reference_id
-  let media_file = null
-  let media_reference
-  let tags
+  export let media_reference
+  export let media_file
+  /* let media_file = null */
+  /* let media_reference */
+  /* let tags */
   let media_container
   let media_element
   // NOTE Esc key while fullscreened doesnt appear to get captured
   let is_fullscreen = false
-  $: load_media_file_info(media_reference_id)
+  /* $: load_media_file_info(media_reference_id) */
 
   function open_fullscreen(element) {
     if (element.requestFullscreen) {

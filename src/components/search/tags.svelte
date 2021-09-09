@@ -5,6 +5,7 @@
   export let on_submit
   export let input
   export let focus = false
+  export let hide_label = false
 
   onMount(async () => {
     await load_tags()
@@ -184,7 +185,9 @@
 <svelte:window on:keydown={on_keydown} />
 
 <div class="tag-search">
-  <h4>Tags</h4>
+  {#if !hide_label}
+    <h4>Tags</h4>
+  {/if}
   <form action="submit" on:submit={handle_submit}>
     <input
       class:invalid-tag={invalid_tag_error}
@@ -224,10 +227,9 @@
 
 <style>
   .tag-search {
-    display: grid;
-    grid-template-rows: 1fr 1fr 1fr;
   }
   form {
+    margin: 2px 0;
     width: 100%;
     display: flex;
     flex-direction: column;

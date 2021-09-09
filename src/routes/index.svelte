@@ -6,6 +6,7 @@
   import MediaFile from '../components/media_file.svelte'
   import IntersectionObserver from '../components/intersection_observer.svelte'
   import Thumbnail from '../components/thumbnail.svelte'
+  import MediaReferenceTags from '../components/media_reference_tags.svelte'
 
   let tags = []
   let media_references = []
@@ -13,6 +14,13 @@
   let show_media_file = false
   let current_media_index = 0
   $: current_media_reference_id = media_references[current_media_index]?.id
+  let current_media_reference
+  let current_tags
+  let current_media_file
+  let loading_current_media_reference = true
+  $: {
+    if (current_media_reference_id !== undefined) on_change_media_reference(current_media_reference_id)
+  }
 
   // NOTE that if the page is longer than the pagination size, we wont detect that we can load more thumbnails
   let pagination_size = 20
@@ -72,12 +80,25 @@
   }
 
   const handle_thumbnail_click = (media_index) => () => {
+    const prev_media_index = current_media_index
     current_media_index = media_index
-    open_media_file()
+    if (prev_media_index === current_media_index) open_media_file()
   }
 
   async function open_media_file() {
     show_media_file = true
+    mark_view_media_file(current_media_reference_id)
+  }
+  async function on_change_media_reference(current_media_reference_id) {
+    loading_current_media_reference = true
+    const data = await client.media.get_file_info(current_media_reference_id)
+    current_media_reference = data.media_reference
+    current_media_file = data.media_file
+    current_tags = data.tags
+    loading_current_media_reference = false
+    if (show_media_file) mark_view_media_file(current_media_reference_id)
+  }
+  async function mark_view_media_file(current_media_reference_id) {
     await client.media.add_view(current_media_reference_id)
     media_references[current_media_index].view_count += 1
   }
@@ -91,7 +112,7 @@
     JumpToBottom: (e) => {},
 
     OpenMedia: (e) => {
-      if (media_references.length) open_media_file()
+      if (media_references.length && !show_media_file) open_media_file()
     },
     CloseMedia: (e) => {
       show_media_file = false
@@ -144,11 +165,15 @@
 <div class="container">
   {#if show_media_file}
     <div class="media-file-container" on:click={on_click_outside_media}>
-      <MediaFile media_reference_id={current_media_reference_id} />
+      <MediaFile media_reference_id={current_media_reference_id} media_file={current_media_file} media_reference={current_media_reference} />
     </div>
   {/if}
 
-  <div class="collapsable">
+  <div id="toolbars-grid">
+    <MediaReferenceTags media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
+
+  <div id="search-plus-viewer">
+  <div id="search-container">
     <Search bind:focus={search_focus} on_submit={handle_search} />
     <h5 class="text-right">{total_unviewed} Unread Viewing ({current_media_index + 1}/{total_media_references}) </h5>
   </div>
@@ -164,20 +189,43 @@
         LOADING...
       {/if}
     </div>
+    </div>
+    </div>
   </div>
 </div>
 
 <style>
-  .collapsable {
+  #search-container {
     padding: 5px;
     background-color: var(--secondary-bg-color);
-    box-shadow: 0 1px 2px 1px rgba(0,0,0,0.5);
+    /* box-shadow: 0 1px 2px 1px rgba(0,0,0,0.5); */
+    box-shadow: 0 3px 2px -2px rgba(0,0,0,0.5);
+    border-bottom: 3px solid white;
   }
   .text-right {
     text-align: right;
   }
   .container {
     width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  #toolbars-grid {
+    /* display: grid; */
+    /* grid-template-columns: 100px auto; */
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    grid-template-rows: 100%;
+  }
+  #media-tag-viewer {
+    /* height: 100vh; */
+    box-shadow: 0 3px 2px 2px rgba(0,0,0,0.5);
+    /* z-index: 100; */
+  }
+  #search-plus-viewer {
+    height: 100vh;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -192,7 +240,7 @@
     display: flex;
   }
   #thumbnail-grid-outer {
-    width: calc(100% - 20px);
+    width:100%;
     overflow-y: scroll;
   }
   #thumbnail-grid {
