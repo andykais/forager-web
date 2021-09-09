@@ -95,7 +95,6 @@
     focus = true
   }
   function on_blur() {
-    show_suggestions = false
     focus = false
   }
   function handle_submit(e) {
@@ -124,14 +123,16 @@
       on:input={on_input}
     />
     <div class="suggestions-container">
-      <div class="suggestions" class:hide={!show_suggestions}>
-        {#each input_suggestions as tag}
-          <div on:click={handle_select_suggestion(tag.id)} class="suggestion">
-            <span style="color: {tag.color}">{tag.group}:{tag.name}</span>
-            <span>{tag.media_reference_count}</span>
-          </div>
-        {/each}
-      </div>
+      {#if show_suggestions}
+        <div class="suggestions">
+          {#each input_suggestions as tag}
+            <div on:click={handle_select_suggestion(tag.id)} class="suggestion">
+              <span style="color: {tag.color}">{tag.group}:{tag.name}</span>
+              <span>{tag.media_reference_count}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
   </form>
   <div>
@@ -177,10 +178,6 @@
     width: calc(100% - 2px);
     background: white;
     border: solid 1px black;
-  }
-  .suggestions.hide {
-    /* display: none seems to interfere with on:click callbacks */
-    opacity: 0;
   }
   .suggestion {
     padding: 2px;

@@ -54,7 +54,7 @@
   const handle_intersecting = (media_reference_id: number) => async () => {
     const last_media_reference = media_references[media_references.length - 1]
     if (media_reference_id === last_media_reference.id) {
-      await load_thumbnails()
+      await load_thumbnails(thumbnail_query.query)
     }
   }
 
