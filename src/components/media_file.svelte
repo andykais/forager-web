@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte'
+  import { onMount } from 'svelte'
   import { client } from '../client'
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
 
@@ -45,16 +45,14 @@
     }
   })
 
-  $: console.log({ is_fullscreen,  })
 </script>
 
-<div class="container">
+<div class="container" bind:this={media_element}>
   {#if media_file}
     {#if media_file.media_type === 'IMAGE'}
-      <img bind:this={media_element} class="media-file" src="/api/media_file/{media_reference.id}" alt="no bueno">
+      <img class="media-file" src="/api/media_file/{media_reference.id}" alt="no bueno">
     {:else if media_file.media_type === 'VIDEO'}
     <video
-      bind:this={media_element}
       style="max-width: {media_file.width}; max-height: {media_file.height}"
       class="media-file"
       src="/api/media_file/{media_reference_id}"
