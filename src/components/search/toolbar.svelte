@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { client } from '../client'
-  import TagSearch from './tag_search.svelte'
-  import StarsSearch from './stars_search.svelte'
+  import { client } from '../../client'
+  import TagSearch from './tags.svelte'
+  import StarsSearch from './stars.svelte'
 
   let input = ''
   let tag_search_focus = false

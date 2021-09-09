@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
-  import { client } from '../client'
+  import { client } from '../../client'
 
   export let on_submit
   export let input

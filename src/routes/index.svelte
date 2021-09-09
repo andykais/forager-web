@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import { client } from '../client'
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
-  import Search from '../components/search.svelte'
+  import Search from '../components/search/toolbar.svelte'
   import MediaFile from '../components/media_file.svelte'
   import IntersectionObserver from '../components/intersection_observer.svelte'
   import Thumbnail from '../components/thumbnail.svelte'
