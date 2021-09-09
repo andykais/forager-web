@@ -1,7 +1,4 @@
 const actions = {
-  JumpToTop: null,
-  JumpToBottom: null,
-
   OpenMedia: 'Enter',
   CloseMedia: 'Escape',
   NextMedia: 'ArrowRight',

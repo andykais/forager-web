@@ -4,6 +4,7 @@
 
   export let media_reference
   export let stars
+  export let view_count
   export let focused = false
 
   let display_stars = '☆ ☆ ☆ ☆ ☆'
@@ -15,7 +16,9 @@
 
   const dispatch = createEventDispatcher()
   const { source_created_at } = media_reference
-  const source_created_ago = source_created_at ? date_fns.formatDistanceToNow(new Date(source_created_at)) : 'unknown'
+  const source_created_ago = source_created_at
+    ? `created ${date_fns.formatDistanceToNow(new Date(source_created_at))} ago`
+    : 'unknown create date'
 </script>
 
 <div class="thumbnail-plus-info">
@@ -27,8 +30,14 @@
     </div>
   </div>
   <div class="thumbnail-info">
-    <span>{display_stars}</span>
-    <span>created {source_created_ago} ago</span>
+    <div class="grid-2">
+      <span>{display_stars}</span>
+      <span>{view_count} views</span>
+    </div>
+    <div class="grid-2">
+      <span>{source_created_ago}</span>
+      <span>{media_reference.tag_count} tags</span>
+    </div>
   </div>
 </div>
 
@@ -81,5 +90,10 @@
     grid-template-rows: 1fr 1fr;
     font-size: 12px;
     color: rgba(0,0,0,0.7);
+    margin-top: 5px;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr auto;
   }
 </style>

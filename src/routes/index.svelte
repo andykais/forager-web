@@ -104,13 +104,19 @@
     if (Object.keys(search_query).length > 0) await load_thumbnails(search_query)
     else await load_thumbnails()
   }
+  function on_click_outside_media(e) {
+    if (e.path[1] === this) {
+      show_media_file = false
+    }
+  }
+
 </script>
 
 <svelte:window on:keydown={keyboard_shortcuts.handler} />
 
 <div class="container">
   {#if show_media_file}
-    <div class="media-file-container">
+    <div class="media-file-container" on:click={on_click_outside_media}>
       <MediaFile media_reference_id={current_media_reference_id} />
     </div>
   {/if}
@@ -121,8 +127,8 @@
   <div id="thumbnail-grid-outer">
     <div id="thumbnail-grid">
       {#each media_references as media_reference, media_index}
-        <IntersectionObserver on:intersect={handle_intersecting(media_reference.id)}>
-          <Thumbnail {media_reference} stars={media_reference.stars} on:click={handle_thumbnail_click(media_index)} focused={current_media_reference_id === media_reference.id}/>
+        <IntersectionObserver focused={current_media_reference_id === media_reference.id} on:intersect={handle_intersecting(media_reference.id)}>
+          <Thumbnail {media_reference} stars={media_reference.stars} view_count={media_reference.view_count} on:click={handle_thumbnail_click(media_index)} focused={current_media_reference_id === media_reference.id}/>
         </IntersectionObserver>
       {/each}
       {#if loading_thumbnails}

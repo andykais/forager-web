@@ -105,6 +105,8 @@
     /* padding: 10px; */
     grid-template-rows: minmax(0, 1fr);
     justify-items: center;
+    align-items: center;
+    background-color: rgba(0,0,0,0.8);
   }
   .media-file {
     max-height: 100%;
