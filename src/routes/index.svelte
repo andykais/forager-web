@@ -14,7 +14,8 @@
   let current_media_index = 0
   $: current_media_reference_id = media_references[current_media_index]?.id
 
-  let thumbnail_query = { limit: 5 }
+  let pagination_size = 10
+  let thumbnail_query = { limit: pagination_size }
   let has_more_thumbnails = true
   let loading_thumbnails = false
   let search_focus = false
@@ -26,12 +27,24 @@
     await load_thumbnails()
   })
 
-  async function load_thumbnails() {
+  async function load_thumbnails(search_query) {
     if (has_more_thumbnails) {
       loading_thumbnails = true
-      const result = await client.media.list(thumbnail_query)
+      const append_new_thumbnails = search_query === thumbnail_query.query
+      thumbnail_query = {...thumbnail_query, query: search_query, limit: pagination_size }
+      if (!append_new_thumbnails) delete thumbnail_query.cursor
+      let result
+      if (thumbnail_query.query) {
+        result = await client.media.search(thumbnail_query)
+      } else {
+        result = await client.media.list(thumbnail_query)
+      }
       total_media_references = result.total
-      media_references = [...media_references, ...result.result]
+      if (append_new_thumbnails) {
+        media_references = [...media_references, ...result.result]
+      } else {
+        media_references = result.result
+      }
       thumbnail_query.cursor = result.cursor
       loading_thumbnails = false
       has_more_thumbnails = Boolean(result.result.length)
@@ -77,6 +90,10 @@
     if (search_focus) keyboard_shortcuts.disable()
     else keyboard_shortcuts.enable()
   }
+  async function handle_search(search_query) {
+    if (search_query.tag_ids.length > 0) await load_thumbnails(search_query)
+    else await load_thumbnails()
+  }
 </script>
 
 <svelte:window on:keydown={keyboard_shortcuts.handler} />
@@ -88,16 +105,7 @@
     </div>
   {/if}
 
-  <Search bind:focus={search_focus} />
-
-  <!--
-  <h4>Tags:</h4>
-  <div id="tags">
-    {#each tags as tag}
-      <div class="tag" style="background-color: {tag.color}">{tag.group}:{tag.name}</div>
-    {/each}
-  </div>
-  -->
+  <Search bind:focus={search_focus} on_submit={handle_search} />
 
   <h4>Media ({total_media_references} total)</h4>
   <div id="thumbnail-grid-outer">
@@ -127,19 +135,6 @@
     justify-content: center;
     display: flex;
   }
-  #tags {
-    font-family: monospace;
-    height: 200px;
-    overflow-y: scroll;
-    padding: 5px 0;
-  }
-
-  .tag {
-    padding: 1px 5px;
-    margin: 2px;
-    border-radius: 2px;
-  }
-
   #thumbnail-grid-outer {
     margin: 10px;
     width: calc(100% - 20px);

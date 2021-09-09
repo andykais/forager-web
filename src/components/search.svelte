@@ -1,17 +1,25 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { client } from '../client'
-  import TagSearch from './tag-search.svelte'
+  /* import TagSearch from './tag-search.svelte' */
+  import TagSearch from './tag_search.svelte'
 
   let input = ''
   let tag_search_focus = false
 
   export let focus = false
+  export let on_submit
+
   $: focus = tag_search_focus // || sort_focus
+
+  function handle_tag_select(tag_ids) {
+    const search_query = { tag_ids }
+    on_submit(search_query)
+  }
 </script>
 
 <div class="container">
-  <TagSearch bind:tag_search_input={input} bind:focus={tag_search_focus} />
+  <TagSearch bind:input bind:focus={tag_search_focus} on_submit={handle_tag_select} />
 
   <div>
     <h4>Stars</h4>
@@ -31,7 +39,7 @@
 
 <style>
   .container {
-    display:  grid;
+    display: grid;
     grid-template-columns: 1fr auto auto;
     grid-gap: 20px;
   }

@@ -1,45 +1,48 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import { client } from '../client'
 
   export let on_submit
+  export let input
   export let focus = false
-  export let tag_search_input = ''
-  let input_tag_ids = []
-  $: focus = show_suggestions
 
-  // on_submit (so we can trigger a search/add tag when its been selected)
-  // bind:value (so we can clear the tag input from the outside)
-  // bind:focus (so we can enable/disable media keyboard shortcuts during focus)
-
-  let tags = []
   onMount(async () => {
+    await load_tags()
+  })
+
+  let loading_tags = false
+  let tags = []
+  let tag_ids_map = {}
+  let tag_display_names_map = {}
+  let input_tag_ids = []
+  let invalid_tag_error = null
+  let input_element
+  let input_suggestions = []
+  let max_suggestions = 10
+  let show_suggestions = false
+  $: show_suggestions = show_suggestions && input_suggestions.length > 0
+
+  async function load_tags() {
     loading_tags = true
     tags = await client.tag.list()
     tags.sort((a, b) => b.media_reference_count - a.media_reference_count)
+    tag_ids_map = tags.reduce((acc, tag) => {
+      acc[tag.id] = tag
+      return acc
+    }, {})
+    tag_display_names_map = tags.reduce((acc, tag) => {
+      const display_name = `${tag.group}:${tag.name}`
+      acc[display_name] = tag
+      return acc
+    }, {})
     loading_tags = false
-  })
-  let tag_input_element
-  let loading_tags = false
-  let show_suggestions = false
-  let suggested_tags = []
-  /* let tag_search_input = '' */
-  let invalid_tag_error = null
-  const max_suggestions = 10
+  }
 
-  $: handle_tag_input(tag_search_input)
-
-  function handle_tag_input(search_str) {
+  function find_tag_suggestions(partial_tag_name) {
     if (loading_tags) return
-    const search_terms = search_str.split(/ +/)
     let tag_name = ''
     let tag_group = ''
-    if (search_terms.length === 0) {
-      suggested_tags = tags.split(0, max_suggestions)
-      return
-    }
-
-    const current_search_term = search_terms[search_terms.length - 1].split(':')
+    const current_search_term = partial_tag_name.split(':')
     if (current_search_term.length === 1) tag_name = current_search_term[0]
     else if (current_search_term.length === 2) {
       tag_group = current_search_term[0]
@@ -64,42 +67,66 @@
         }
       }
     }
-    suggested_tags = new_suggestions
-  }
-  const handle_select_suggestion = (tag_str) => () => {
-    const split = tag_search_input.split(/[ ]+/)
-    split[split.length - 1] = tag_str
-    tag_search_input = split.join(' ') + ' '
-    tag_input_element.focus()
-  }
-  function on_focus() {
+    input_suggestions = new_suggestions
     show_suggestions = true
-    handle_tag_input(tag_search_input)
+
+  }
+  async function on_input() {
+    if (input.length === 0) return find_tag_suggestions('')
+    if (input[input.length - 1] === ' ') return find_tag_suggestions('')
+    const split = input.split(/[ ]+/).filter(str => str.length)
+    const last = split.pop()
+
+    input_tag_ids = split.map(str => {
+      const matching_tag = tag_display_names_map[str]
+      // TODO handle an "accept_nonexistent_tags" flag
+      if (matching_tag) return matching_tag.id
+      else invalid_tag_error = `${str} does not exist`
+    })
+    if (tag_display_names_map[last]) {
+      input_tag_ids.push(tag_display_names_map[last].id)
+      show_suggestions = false
+    }
+    else find_tag_suggestions(last)
+  }
+
+  function on_focus() {
+    on_input()
+    focus = true
   }
   function on_blur() {
     show_suggestions = false
+    focus = false
   }
   function handle_submit(e) {
     e.preventDefault()
+    on_submit(input_tag_ids)
+  }
+  const handle_select_suggestion = (tag_id) => () => {
+    const selected_tag = tag_ids_map[tag_id]
+    const split = input.split(/ +/)
+    split[split.length - 1] = `${selected_tag.group}:${selected_tag.name}`
+    input = split.join(' ')
+    input_element.focus()
   }
 </script>
 
-<div id="tags">
+<div class="tag-search">
   <h4>Tags</h4>
   <form action="submit" on:submit={handle_submit}>
     <input
       class:invalid-tag={invalid_tag_error}
       type="text"
-      list="tags"
-      bind:value={tag_search_input}
-      bind:this={tag_input_element}
+      bind:value={input}
+      bind:this={input_element}
       on:focus={on_focus}
       on:blur={on_blur}
+      on:input={on_input}
     />
     <div class="suggestions-container">
-      <div class="suggestions" class:hide={!show_suggestions || suggested_tags.length === 0}>
-        {#each suggested_tags as tag}
-          <div on:click={handle_select_suggestion(`${tag.group}:${tag.name}`)} class="suggestion">
+      <div class="suggestions" class:hide={!show_suggestions}>
+        {#each input_suggestions as tag}
+          <div on:click={handle_select_suggestion(tag.id)} class="suggestion">
             <span style="color: {tag.color}">{tag.group}:{tag.name}</span>
             <span>{tag.media_reference_count}</span>
           </div>
@@ -115,7 +142,7 @@
 </div>
 
 <style>
-  #tags {
+  .tag-search {
     display: grid;
     grid-template-rows: 1fr 1fr 1fr;
   }
