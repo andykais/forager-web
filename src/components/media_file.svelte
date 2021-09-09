@@ -3,7 +3,6 @@
   import { client } from '../client'
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
 
-  // TODO BUG: open video, fullscreen it, then go to image, we lose keyboard inputs and go out of fullscreen somehow
   onMount(async () => {
     await load_media_file_info(media_reference_id)
   })
