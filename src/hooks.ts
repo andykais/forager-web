@@ -20,6 +20,17 @@ class ForagerApiServer {
     search: async (query_data: any) => {
       return forager.media.search(query_data)
     },
+
+    add_view: async (query_data) => {
+      try{
+
+      await forager.media.add_view(query_data)
+      }catch(e){
+        console.log(e)
+        throw e
+      }
+    },
+
     get_file_info: async (query_data) => {
       const data = forager.media.get_file_info(query_data)
       return data

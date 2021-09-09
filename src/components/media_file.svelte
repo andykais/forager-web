@@ -4,7 +4,7 @@
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
 
   onMount(async () => {
-    await load_media_file_info(media_reference_id)
+    /* await load_media_file_info(media_reference_id) */
     document.addEventListener('fullscreenchange', handle_escape_fullscreen, false);
     document.addEventListener('mozfullscreenchange', handle_escape_fullscreen, false);
     document.addEventListener('MSFullscreenChange', handle_escape_fullscreen, false);
@@ -25,10 +25,12 @@
   }
 
   async function load_media_file_info(media_reference_id) {
+    console.log('loading data info')
     const data = await client.media.get_file_info(media_reference_id)
     media_reference = data.media_reference
     media_file = data.media_file
     tags = data.tags
+    await client.media.add_view(media_reference_id)
   }
   export let media_reference_id
   let media_file = null

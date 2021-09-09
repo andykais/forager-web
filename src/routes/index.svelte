@@ -29,11 +29,14 @@
   })
 
   async function load_thumbnails(search_query) {
+    const is_new_search_query = search_query !== thumbnail_query.query
+    if (is_new_search_query) {
+      has_more_thumbnails = true
+      delete thumbnail_query.cursor
+    }
     if (has_more_thumbnails) {
       loading_thumbnails = true
-      const append_new_thumbnails = search_query === thumbnail_query.query
       thumbnail_query = {...thumbnail_query, query: search_query, limit: pagination_size }
-      if (!append_new_thumbnails) delete thumbnail_query.cursor
       let result
       if (thumbnail_query.query) {
         result = await client.media.search(thumbnail_query)
@@ -41,10 +44,10 @@
         result = await client.media.list(thumbnail_query)
       }
       total_media_references = result.total
-      if (append_new_thumbnails) {
-        media_references = [...media_references, ...result.result]
-      } else {
+      if (is_new_search_query) {
         media_references = result.result
+      } else {
+        media_references = [...media_references, ...result.result]
       }
       thumbnail_query.cursor = result.cursor
       loading_thumbnails = false
@@ -98,7 +101,7 @@
     else keyboard_shortcuts.enable()
   }
   async function handle_search(search_query) {
-    if (search_query.tag_ids.length > 0) await load_thumbnails(search_query)
+    if (Object.keys(search_query).length > 0) await load_thumbnails(search_query)
     else await load_thumbnails()
   }
 </script>
