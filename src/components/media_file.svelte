@@ -30,7 +30,6 @@
     media_reference = data.media_reference
     media_file = data.media_file
     tags = data.tags
-    await client.media.add_view(media_reference_id)
   }
   export let media_reference_id
   let media_file = null

@@ -20,6 +20,13 @@
   let has_more_thumbnails = true
   let loading_thumbnails = false
   let search_focus = false
+  let grid_width
+  let num_grid_columns = 0
+  $: {
+    // we hardcode grid item width below
+    if (grid_width) num_grid_columns = Math.floor(grid_width / (200 + 10))
+  }
+  let total_unviewed = 0
 
   onMount(async () => {
     tags = await client.tag.list()
@@ -45,10 +52,12 @@
       }
       total_media_references = result.total
       if (is_new_search_query) {
+        total_unviewed = 0
         media_references = result.result
       } else {
         media_references = [...media_references, ...result.result]
       }
+      total_unviewed += result.result.reduce((count, r) => r.view_count === 0 ? count + 1 : count, 0)
       thumbnail_query.cursor = result.cursor
       loading_thumbnails = false
       has_more_thumbnails = Boolean(result.result.length)
@@ -64,7 +73,13 @@
 
   const handle_thumbnail_click = (media_index) => () => {
     current_media_index = media_index
+    open_media_file()
+  }
+
+  async function open_media_file() {
     show_media_file = true
+    await client.media.add_view(current_media_reference_id)
+    media_references[current_media_index].view_count += 1
   }
 
   async function star_current_media(star_count) {
@@ -76,7 +91,7 @@
     JumpToBottom: (e) => {},
 
     OpenMedia: (e) => {
-      if (media_references.length) show_media_file = true
+      if (media_references.length) open_media_file()
     },
     CloseMedia: (e) => {
       show_media_file = false
@@ -86,6 +101,18 @@
     },
     PrevMedia: (e) => {
       current_media_index = (media_references.length + (current_media_index - 1)) % media_references.length
+    },
+    DownMedia: () => {
+      if (current_media_index + num_grid_columns >= media_references.length) {
+        const is_last_row = media_references.length % num_grid_columns > current_media_index % num_grid_columns
+        if (is_last_row) current_media_index = 0
+        else current_media_index = media_references.length - 1
+      }
+      else current_media_index = current_media_index + num_grid_columns
+    },
+    UpMedia: () => {
+      if (current_media_index - num_grid_columns < 0) current_media_index = media_references.length - 1
+      else current_media_index = current_media_index - num_grid_columns
     },
 
     Star0: (e) => star_current_media(0),
@@ -121,10 +148,12 @@
     </div>
   {/if}
 
-  <Search bind:focus={search_focus} on_submit={handle_search} />
+  <div class="collapsable">
+    <Search bind:focus={search_focus} on_submit={handle_search} />
+    <h5 class="text-right">{total_unviewed} Unread Viewing ({current_media_index + 1}/{total_media_references}) </h5>
+  </div>
 
-  <h4>Media ({total_media_references} total)</h4>
-  <div id="thumbnail-grid-outer">
+  <div id="thumbnail-grid-outer" bind:clientWidth={grid_width} >
     <div id="thumbnail-grid">
       {#each media_references as media_reference, media_index}
         <IntersectionObserver focused={current_media_reference_id === media_reference.id} on:intersect={handle_intersecting(media_reference.id)}>
@@ -139,23 +168,35 @@
 </div>
 
 <style>
+  .collapsable {
+    padding: 5px;
+    background-color: var(--secondary-bg-color);
+    box-shadow: 0 1px 2px 1px rgba(0,0,0,0.5);
+  }
+  .text-right {
+    text-align: right;
+  }
   .container {
     width: 100%;
-    padding: 5px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
   .media-file-container {
     position: fixed;
     top: 0;
+    z-index: 100;
     height: 100%;
     width: 100%;
     justify-content: center;
     display: flex;
   }
   #thumbnail-grid-outer {
-    margin: 10px;
     width: calc(100% - 20px);
+    overflow-y: scroll;
   }
   #thumbnail-grid {
+    margin: 10px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     justify-items: center;

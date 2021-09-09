@@ -18,8 +18,9 @@
   function scroll_into_view() {
   /* console.log('scroll_into_view', state) */
     if (element && state !== 'intersecting') {
+      const options = {inline: 'nearest', block: state === 'above' ? 'start' : 'end'}
       const align_to_top = state === 'above'
-      element.scrollIntoView(align_to_top)
+      element.scrollIntoView(options)
     }
   }
 

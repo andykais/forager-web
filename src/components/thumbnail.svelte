@@ -49,21 +49,19 @@
   .thumbnail-outer {
     height: calc(200px - 10px);
     width: calc(200px - 10px);
-    /* padding: 5px; */
-    /* background-color: green; */
     display: inline-flex;
     justify-content: center;
 
-    background-color: rgba(0,0,0,0.2);
+    /* background-color: rgba(0,0,0,0.0); */
+    background-color: var(--grey-light);
     border-radius: 5px;
-    box-shadow: 1px 0px 3px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.2);
     border: 5px solid rgba(255,255,255,0.6);
   }
   .focused {
-    box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.3);
-    /* box-shadow:none; */
-    border: 5px solid rgba(255,255,255,0.9);
-    background-color: rgba(255,255,255,0.9);
+    box-shadow: 0px 0px 2px 0.5px rgb(100 100 100);
+    border: 5px solid rgba(0,0,0,0.0);
+    background-color: var(--grey-dark);
   }
   .thumbnail {
     border-radius: 5px;

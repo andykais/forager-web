@@ -3,6 +3,8 @@ const actions = {
   CloseMedia: 'Escape',
   NextMedia: 'ArrowRight',
   PrevMedia: 'ArrowLeft',
+  DownMedia: 'ArrowDown',
+  UpMedia: 'ArrowUp',
   ToggleFitMedia: null,
   ToggleFullScreen: 'KeyF',
   PlayPauseMedia: 'Space',
