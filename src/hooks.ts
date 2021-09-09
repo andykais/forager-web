@@ -13,6 +13,10 @@ forager.init()
 
 class ForagerApiServer {
   media = {
+    update: async (...args) => {
+      await forager.media.update(...args)
+    },
+
     search: async (query_data: any) => {
       return forager.media.search(query_data)
     },
@@ -24,7 +28,7 @@ class ForagerApiServer {
       const result = forager.media.list(query_data)
       // console.log(result)
       return result
-    }
+    },
   }
   tag = {
     list: () => {

@@ -23,7 +23,7 @@
 
   <div>
     <h4>Stars</h4>
-    <span>★ ★ ★ ☆ ☆</span>
+    <span>☆ ☆ ☆ ☆ ☆</span>
   </div>
 
   <div>

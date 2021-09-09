@@ -3,7 +3,15 @@
   import * as date_fns from 'date-fns'
 
   export let media_reference
+  export let stars
   export let focused = false
+
+  let display_stars = '☆ ☆ ☆ ☆ ☆'
+  $: {
+    const stars_str = Array(stars).fill('★')
+    const empty_stars_str = Array(5 - stars).fill('☆')
+    display_stars = ([...stars_str, ...empty_stars_str]).join(' ')
+  }
 
   const dispatch = createEventDispatcher()
   const { source_created_at } = media_reference
@@ -19,7 +27,7 @@
     </div>
   </div>
   <div class="thumbnail-info">
-    <span>★ ★ ★ ☆ ☆</span>
+    <span>{display_stars}</span>
     <span>created {source_created_ago} ago</span>
   </div>
 </div>

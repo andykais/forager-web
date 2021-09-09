@@ -5,7 +5,25 @@
 
   onMount(async () => {
     await load_media_file_info(media_reference_id)
+    document.addEventListener('fullscreenchange', handle_escape_fullscreen, false);
+    document.addEventListener('mozfullscreenchange', handle_escape_fullscreen, false);
+    document.addEventListener('MSFullscreenChange', handle_escape_fullscreen, false);
+    document.addEventListener('webkitfullscreenchange', handle_escape_fullscreen, false);
+    () => {
+      document.removeEventListener('fullscreenchange', handle_escape_fullscreen);
+      document.removeEventListener('mozfullscreenchange', handle_escape_fullscreen);
+      document.removeEventListener('MSFullscreenChange', handle_escape_fullscreen);
+      document.removeEventListener('webkitfullscreenchange', handle_escape_fullscreen);
+    }
   })
+  // we need to handle exiting via the Escape key, which cannot be caught with a keyboard listener
+  function handle_escape_fullscreen(e) {
+     if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
+     } else {
+       is_fullscreen = false
+     }
+  }
+
   async function load_media_file_info(media_reference_id) {
     const data = await client.media.get_file_info(media_reference_id)
     media_reference = data.media_reference
@@ -16,7 +34,9 @@
   let media_file = null
   let media_reference
   let tags
+  let media_container
   let media_element
+  // NOTE Esc key while fullscreened doesnt appear to get captured
   let is_fullscreen = false
   $: load_media_file_info(media_reference_id)
 
@@ -41,18 +61,26 @@
         if (is_fullscreen) close_fullscreen(media_element)
         else open_fullscreen(media_element)
       }
-    }
+    },
+    PlayPauseMedia: (e) => {
+      e.preventDefault()
+      if (media_file.media_type === 'VIDEO') {
+        if (media_element.paused) media_element.play()
+        else media_element.pause()
+      }
+    },
   })
 
 </script>
 
-<div class="container" bind:this={media_element}>
+<div class="container" bind:this={media_container}>
   {#if media_file}
     {#if media_file.media_type === 'IMAGE'}
-      <img class="media-file" src="/api/media_file/{media_reference.id}" alt="no bueno">
+      <img bind:this={media_element} class="media-file" src="/api/media_file/{media_reference.id}" alt="no bueno">
     {:else if media_file.media_type === 'VIDEO'}
     <video
-      style="max-width: {media_file.width}; max-height: {media_file.height}"
+      bind:this={media_element}
+      style="min-width: {media_file.width}; min-height: {media_file.height}"
       class="media-file"
       src="/api/media_file/{media_reference_id}"
       type="video/mp4"
@@ -69,18 +97,15 @@
 
 <style>
   .container {
-    height: 100%;
+    height: 100vh;
     width: 100%;
     display: grid;
     /* padding: 10px; */
+    grid-template-rows: minmax(0, 1fr);
     justify-items: center;
   }
-  video.media-file {
-    /* height: 100%; */
-  }
-
   .media-file {
-    max-height: 100vh;
+    max-height: 100%;
     max-width: 100%;
   }
 </style>

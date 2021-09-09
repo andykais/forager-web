@@ -8,12 +8,14 @@ const actions = {
   PrevMedia: 'ArrowLeft',
   ToggleFitMedia: null,
   ToggleFullScreen: 'KeyF',
+  PlayPauseMedia: 'Space',
 
-  Star1: null,
-  Star2: null,
-  Star3: null,
-  Star4: null,
-  Star5: null,
+  Star0: 'Digit0',
+  Star1: 'Digit1',
+  Star2: 'Digit2',
+  Star3: 'Digit3',
+  Star4: 'Digit4',
+  Star5: 'Digit5',
   ToggleViewTags: null,
 } as const
 

@@ -14,7 +14,8 @@
   let current_media_index = 0
   $: current_media_reference_id = media_references[current_media_index]?.id
 
-  let pagination_size = 10
+  // NOTE that if the page is longer than the pagination size, we wont detect that we can load more thumbnails
+  let pagination_size = 20
   let thumbnail_query = { limit: pagination_size }
   let has_more_thumbnails = true
   let loading_thumbnails = false
@@ -62,6 +63,11 @@
     current_media_index = media_index
     show_media_file = true
   }
+
+  async function star_current_media(star_count) {
+    await client.media.update(current_media_reference_id, { stars: star_count })
+    media_references[current_media_index].stars = star_count
+  }
   const keyboard_shortcuts = new KeyboardShortcuts({
     JumpToTop: (e) => {},
     JumpToBottom: (e) => {},
@@ -79,11 +85,12 @@
       current_media_index = (media_references.length + (current_media_index - 1)) % media_references.length
     },
 
-    Star1: (e) => {},
-    Star2: (e) => {},
-    Star3: (e) => {},
-    Star4: (e) => {},
-    Star5: (e) => {},
+    Star0: (e) => star_current_media(0),
+    Star1: (e) => star_current_media(1),
+    Star2: (e) => star_current_media(2),
+    Star3: (e) => star_current_media(3),
+    Star4: (e) => star_current_media(4),
+    Star5: (e) => star_current_media(5),
     ToggleViewTags: (e) => {},
   })
   $: {
@@ -112,7 +119,7 @@
     <div id="thumbnail-grid">
       {#each media_references as media_reference, media_index}
         <IntersectionObserver on:intersect={handle_intersecting(media_reference.id)}>
-          <Thumbnail {media_reference} on:click={handle_thumbnail_click(media_index)} focused={current_media_reference_id === media_reference.id}/>
+          <Thumbnail {media_reference} stars={media_reference.stars} on:click={handle_thumbnail_click(media_index)} focused={current_media_reference_id === media_reference.id}/>
         </IntersectionObserver>
       {/each}
       {#if loading_thumbnails}
