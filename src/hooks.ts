@@ -5,7 +5,8 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 const { Forager } = require('forager')
 
-const database_path = 'normal.db'
+// const database_path = 'normal.db'
+const database_path = '/media/veracrypt7/scrapers/likee.video/forager.db'
 // const database_path = '/home/andrew/Code/development/forager/normal.db'
 const forager: Forager = new Forager({ database_path, log_level: 'info' })
 forager.init()

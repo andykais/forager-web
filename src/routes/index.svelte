@@ -100,6 +100,7 @@
   }
   async function mark_view_media_file(current_media_reference_id) {
     await client.media.add_view(current_media_reference_id)
+    if (media_references[current_media_index].view_count === 0) total_unviewed -= 1
     media_references[current_media_index].view_count += 1
   }
 
@@ -216,7 +217,7 @@
     /* grid-template-columns: 100px auto; */
     height: 100%;
     display: grid;
-    grid-template-columns: 1fr 4fr;
+    grid-template-columns: minmax(0, 1fr) 3fr;
     grid-template-rows: 100%;
   }
   #media-tag-viewer {

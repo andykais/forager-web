@@ -227,6 +227,7 @@
 
 <style>
   .tag-search {
+    width: 100%;
   }
   form {
     margin: 2px 0;
@@ -237,7 +238,6 @@
   }
   input {
     width: -webkit-fill-available;
-    border-radius: 5px;
   }
   .invalid-tag {
     border: 2px solid red;
