@@ -23,13 +23,7 @@ class ForagerApiServer {
     },
 
     add_view: async (query_data) => {
-      try{
-
       await forager.media.add_view(query_data)
-      }catch(e){
-        console.log(e)
-        throw e
-      }
     },
 
     get_file_info: async (query_data) => {
@@ -38,7 +32,6 @@ class ForagerApiServer {
     },
     list: (query_data) => {
       const result = forager.media.list(query_data)
-      // console.log(result)
       return result
     },
   }
@@ -46,6 +39,13 @@ class ForagerApiServer {
     list: () => {
       const result =  forager.tag.list()
       return result
+    },
+    add_tags: (media_reference_id, tags) => {
+      const result = forager.tag.add_tags(media_reference_id, tags)
+      return result
+    },
+    remove_tags: (media_reference_id, tags) => {
+      return forager.tag.remove_tags(media_reference_id, tags)
     }
   }
 }

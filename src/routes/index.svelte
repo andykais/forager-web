@@ -6,7 +6,7 @@
   import MediaFile from '../components/media_file.svelte'
   import IntersectionObserver from '../components/intersection_observer.svelte'
   import Thumbnail from '../components/thumbnail.svelte'
-  import MediaReferenceTags from '../components/media_reference_tags.svelte'
+  import MediaReferenceTags from '../components/media_reference.svelte'
 
   let tags = []
   let media_references = []
@@ -28,6 +28,7 @@
   let has_more_thumbnails = true
   let loading_thumbnails = false
   let search_focus = false
+  let media_reference_focus = false
   let grid_width
   let num_grid_columns = 0
   $: {
@@ -146,7 +147,7 @@
     ToggleViewTags: (e) => {},
   })
   $: {
-    if (search_focus) keyboard_shortcuts.disable()
+    if (search_focus || media_reference_focus) keyboard_shortcuts.disable()
     else keyboard_shortcuts.enable()
   }
   async function handle_search(search_query) {
@@ -171,7 +172,7 @@
   {/if}
 
   <div id="toolbars-grid">
-    <MediaReferenceTags media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
+    <MediaReferenceTags bind:focus={media_reference_focus} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
 
   <div id="search-plus-viewer">
   <div id="search-container">

@@ -2,10 +2,12 @@
   import { onMount, tick } from 'svelte'
   import { client } from '../../client'
 
+  export let input = ''
   export let on_submit
-  export let input
   export let focus = false
   export let hide_label = false
+  export let allow_multiple = true
+  export let allow_new_tags = false
 
   onMount(async () => {
     await load_tags()
@@ -19,7 +21,7 @@
   let tag_ids_map = {}
   let tag_display_names_map = {}
   let input_tag_ids = []
-  let unknown_tag_display_names = []
+  let unknown_tags = []
   let invalid_tag_error = null
   let input_element
   let focused_suggestion_index = null
@@ -64,7 +66,7 @@
     const new_suggestions = []
     for (let i = 0; i < tags.length && new_suggestions.length < max_suggestions; i++) {
       const tag = tags[i]
-      if (input_tag_ids.includes(tag.id)) continue
+      if (input_tag_ids.find(t => t.id === tag.id)) continue
       if (tag_group.length === 0 && tag_name.length === 0) {
         new_suggestions.push(tag)
       } else if (tag_group.length === 0) {
@@ -88,15 +90,21 @@
     input_suggestions = new_suggestions
     show_suggestions = true
   }
+  function parse_tag_str(str) {
+    const split = str.split(':')
+    if (split.length === 1) return { group: '', name: split[0] }
+    else if (split.length === 2) return { group: split[0], name: split[1] }
+    else throw new Error('invalid tag')
+  }
   async function on_input() {
     invalid_tag_error = ''
-    unknown_tag_display_names = []
+    unknown_tags = []
     const split = input.split(/[ ]+/).filter(str => str.length > 0)
     input_tag_ids = []
     for (const str of split) {
         const matching_tag = tag_display_names_map[str]
-        if (matching_tag) input_tag_ids.push(matching_tag.id)
-        else unknown_tag_display_names.push(str)
+        if (matching_tag) input_tag_ids.push({id: matching_tag.id, name: matching_tag.name, group: matching_tag.group })
+        else unknown_tags.push(parse_tag_str(str))
     }
 
     if (input.length === 0) return find_tag_suggestions('')
@@ -130,9 +138,13 @@
   }
   function handle_submit(e) {
     e.preventDefault()
-    if(unknown_tag_display_names.length) {
-      // TODO handle an "accept_nonexistent_tags" flag
-      invalid_tag_error = `${unknown_tag_display_names[0]} does not exist`
+    if(unknown_tags.length) {
+      if (allow_new_tags) {
+        console.log({ allow_new_tags })
+        input_tag_ids = input_tag_ids.concat(unknown_tags)
+      } else {
+        invalid_tag_error = `${unknown_tags[0]} does not exist`
+      }
     }
     on_submit(input_tag_ids)
   }
@@ -146,9 +158,13 @@
     }
     e.preventDefault()
     const selected_tag = tag_ids_map[tag_id]
-    const split = input.split(/ +/)
-    split[split.length - 1] = `${selected_tag.group}:${selected_tag.name}`
-    input = split.join(' ')
+    if (allow_multiple) {
+      const split = input.split(/ +/)
+      split[split.length - 1] = `${selected_tag.group}:${selected_tag.name}`
+      input = split.join(' ')
+    } else {
+      input = `${selected_tag.group}:${selected_tag.name}`
+    }
     input_element.focus()
     show_suggestions = false
   }

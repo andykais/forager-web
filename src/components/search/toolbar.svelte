@@ -4,7 +4,6 @@
   import TagSearch from './tags.svelte'
   import StarsSearch from './stars.svelte'
 
-  let input = ''
   let tag_search_focus = false
   let stars_filter_focus = false
   let search_query = {}
@@ -14,9 +13,9 @@
 
   $: focus = tag_search_focus || stars_filter_focus // || sort_focus
 
-  function handle_tag_select(tag_ids) {
-    search_query = {...search_query, tag_ids}
-    if (tag_ids.length === 0) delete search_query.tag_ids
+  function handle_tag_select(selected_tags) {
+    search_query = {...search_query, tag_ids: selected_tags.map(t => t.id)}
+    if (selected_tags.length === 0) delete search_query.tag_ids
     on_submit(search_query)
   }
   function handle_stars_select(star_count) {
@@ -27,7 +26,7 @@
 </script>
 
 <div class="container">
-  <TagSearch bind:input bind:focus={tag_search_focus} on_submit={handle_tag_select} />
+  <TagSearch bind:focus={tag_search_focus} on_submit={handle_tag_select} />
 
   <StarsSearch bind:focus={stars_filter_focus} on_submit={handle_stars_select}/>
 
