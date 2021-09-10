@@ -5,6 +5,8 @@ const actions = {
   PrevMedia: 'ArrowLeft',
   DownMedia: 'ArrowDown',
   UpMedia: 'ArrowUp',
+  FocusSearch: 'Slash',
+  FocusNewTag: 'Ctrl-KeyM',
   ToggleFitMedia: null,
   ToggleFullScreen: 'KeyF',
   PlayPauseMedia: 'Space',
@@ -36,7 +38,11 @@ class KeyboardShortcuts {
   }
   public handler = (e) => {
     if (this.disabled) return
-    const action = keycode_actions[e.code]
+    const keys_down = []
+    if (e.ctrlKey) keys_down.push('Ctrl')
+    keys_down.push(e.code)
+    const code = keys_down.join('-')
+    const action = keycode_actions[code]
     if (action) {
       if (this.defined_actions[action]) {
         this.defined_actions[action](e)

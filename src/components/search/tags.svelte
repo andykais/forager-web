@@ -8,13 +8,21 @@
   export let hide_label = false
   export let allow_multiple = true
   export let allow_new_tags = false
+  export let input_focus = false
 
   onMount(async () => {
     await load_tags()
   })
 
-  let input_focus = false
+  $: console.log({ input_focus })
   let suggestions_focus = false
+  $: {
+    if (input_focus) {
+      console.log('input focus?')
+      input_element.focus()
+      on_input()
+    }
+  }
   $: focus = input_focus || suggestions_focus
   let loading_tags = false
   let tags = []
@@ -115,7 +123,6 @@
   }
 
   function on_focus() {
-    on_input()
     input_focus = true
   }
   function on_suggestion_focus(suggestion_index) {
@@ -154,6 +161,7 @@
       // Somehow hitting enter while the input is focused is triggering the button on:click event
       handle_submit(e)
       show_suggestions = false
+      input_focus = true
       return
     }
     e.preventDefault()
@@ -169,7 +177,12 @@
     show_suggestions = false
   }
   function on_keydown(e) {
+    if (e.code === 'Escape') console.log(e.code, {focus, input_focus})
     if(focus) {
+      if (e.code === 'Escape') {
+        show_suggestions = false
+        input_element.blur()
+      }
       if (show_suggestions) {
         if (e.code === 'ArrowDown') {
           e.preventDefault()
@@ -181,9 +194,6 @@
           if (focused_suggestion_index === null) focused_suggestion_index = 0
           focused_suggestion_index = (suggestions_buttons.length + (focused_suggestion_index - 1)) % suggestions_buttons.length
           suggestions_buttons[focused_suggestion_index].focus()
-        } else if (e.code === 'Escape') {
-          show_suggestions = false
-          input_element.blur()
         }
       } else {
         show_suggestions =  true

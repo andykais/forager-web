@@ -29,6 +29,7 @@
   let loading_thumbnails = false
   let search_focus = false
   let media_reference_focus = false
+  let media_reference_input_focus = false
   let grid_width
   let num_grid_columns = 0
   $: {
@@ -120,12 +121,15 @@
       show_media_file = false
     },
     NextMedia: (e) => {
+      e.preventDefault()
       current_media_index = (current_media_index + 1) % media_references.length
     },
     PrevMedia: (e) => {
+      e.preventDefault()
       current_media_index = (media_references.length + (current_media_index - 1)) % media_references.length
     },
-    DownMedia: () => {
+    DownMedia: (e) => {
+      e.preventDefault()
       if (current_media_index + num_grid_columns >= media_references.length) {
         const is_last_row = media_references.length % num_grid_columns > current_media_index % num_grid_columns
         if (is_last_row) current_media_index = 0
@@ -133,7 +137,8 @@
       }
       else current_media_index = current_media_index + num_grid_columns
     },
-    UpMedia: () => {
+    UpMedia: (e) => {
+      e.preventDefault()
       if (current_media_index - num_grid_columns < 0) current_media_index = media_references.length - 1
       else current_media_index = current_media_index - num_grid_columns
     },
@@ -145,6 +150,14 @@
     Star4: (e) => star_current_media(4),
     Star5: (e) => star_current_media(5),
     ToggleViewTags: (e) => {},
+    FocusSearch: (e) => {
+      console.log(e)
+    },
+    FocusNewTag: (e) => {
+      e.preventDefault()
+      console.log('Focus up!')
+      media_reference_input_focus = true
+    }
   })
   $: {
     if (search_focus || media_reference_focus) keyboard_shortcuts.disable()
@@ -172,7 +185,7 @@
   {/if}
 
   <div id="toolbars-grid">
-    <MediaReferenceTags bind:focus={media_reference_focus} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
+    <MediaReferenceTags bind:focus={media_reference_focus} bind:new_tag_focus={media_reference_input_focus} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
 
   <div id="search-plus-viewer">
   <div id="search-container">
@@ -180,7 +193,7 @@
     <h5 class="text-right">{total_unviewed} Unread Viewing ({current_media_index + 1}/{total_media_references}) </h5>
   </div>
 
-  <div id="thumbnail-grid-outer" bind:clientWidth={grid_width} >
+  <div id="thumbnail-grid-outer" bind:clientWidth={grid_width} tabindex="0">
     <div id="thumbnail-grid">
       {#each media_references as media_reference, media_index}
         <IntersectionObserver focused={current_media_reference_id === media_reference.id} on:intersect={handle_intersecting(media_reference.id)}>

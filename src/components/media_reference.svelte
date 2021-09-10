@@ -5,6 +5,11 @@
   export let tags = []
   export let media_reference
   export let focus = false
+  export let new_tag_focus = false
+
+  $: {
+    console.log({ new_tag_focus })
+  }
 
   let new_tag_input = ''
   let add_tag_focus
@@ -71,6 +76,7 @@
           allow_new_tags={true}
           bind:input={new_tag_input}
           bind:focus={add_tag_focus}
+          bind:input_focus={new_tag_focus}
           on_submit={on_add_new_tags}
         />
         <button><h3>+</h3></button>

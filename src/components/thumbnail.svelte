@@ -56,7 +56,7 @@
     background-color: var(--grey-light);
     border-radius: 5px;
     box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.2);
-    border: 5px solid rgba(255,255,255,0.6);
+    border: 5px solid var(--grey-dark);
   }
   .focused {
     box-shadow: 0px 0px 2px 0.5px rgb(100 100 100);
