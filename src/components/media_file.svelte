@@ -42,6 +42,7 @@
   // NOTE Esc key while fullscreened doesnt appear to get captured
   let is_fullscreen = false
   /* $: load_media_file_info(media_reference_id) */
+  let show_video_preview = false
 
   function open_fullscreen(element) {
     if (element.requestFullscreen) {
@@ -72,6 +73,10 @@
         else media_element.pause()
       }
     },
+    ToggleVideoPreviewVsThumbails: (e) => {
+      e.preventDefault()
+      show_video_preview = !show_video_preview 
+    },
   })
 
 </script>
@@ -81,15 +86,19 @@
     {#if media_file.media_type === 'IMAGE'}
       <img bind:this={media_element} class="media-file" src="/api/media_file/{media_reference.id}" alt="no bueno">
     {:else if media_file.media_type === 'VIDEO'}
-    <video
-      bind:this={media_element}
-      style="min-width: {media_file.width}; min-height: {media_file.height}"
-      class="media-file"
-      src="/api/media_file/{media_reference_id}"
-      type="video/mp4"
-      controls
-      autoplay
-    />
+      {#if show_video_preview}
+        <img src="/api/video_preview/{media_reference.id}" />
+      {:else}
+        <video
+          bind:this={media_element}
+          style="min-width: {media_file.width}; min-height: {media_file.height}"
+          class="media-file"
+          src="/api/media_file/{media_reference_id}"
+          type="video/mp4"
+          controls
+          autoplay
+        />
+      {/if}
     {/if}
   {:else}
     LOADING

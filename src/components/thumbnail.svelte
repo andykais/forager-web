@@ -6,12 +6,17 @@
   export let stars
   export let view_count
   export let focused = false
+  export let show_video_preview = false
 
+  let url_path = '/api/thumbnail'
   let display_stars = '☆ ☆ ☆ ☆ ☆'
   $: {
     const stars_str = Array(stars).fill('★')
     const empty_stars_str = Array(5 - stars).fill('☆')
     display_stars = ([...stars_str, ...empty_stars_str]).join(' ')
+  }
+  $: {
+    url_path = show_video_preview ? '/api/video_preview' : '/api/thumbnail'
   }
 
   const dispatch = createEventDispatcher()
@@ -24,7 +29,7 @@
 <div class="thumbnail-plus-info">
   <div class="thumbnail-outer" on:click class:focused={focused}>
     <div class="thumbnail" >
-      <img src="/api/thumbnail/{media_reference.id}" alt="/api/thumbnail/{media_reference.id}" />
+      <img src="{url_path}/{media_reference.id}" alt="/api/thumbnail/{media_reference.id}" />
       <!--
     -->
     </div>

@@ -8,6 +8,7 @@
   import Thumbnail from '../components/thumbnail.svelte'
   import MediaReferenceTags from '../components/media_reference.svelte'
 
+  let show_video_preview_thumbnails = false
   let tags = []
   let media_references = []
   let total_media_references = 0
@@ -142,6 +143,10 @@
       if (current_media_index - num_grid_columns < 0) current_media_index = media_references.length - 1
       else current_media_index = current_media_index - num_grid_columns
     },
+    ToggleVideoPreviewVsThumbails: (e) => {
+      e.preventDefault()
+      show_video_preview_thumbnails = !show_video_preview_thumbnails 
+    },
 
     Star0: (e) => star_current_media(0),
     Star1: (e) => star_current_media(1),
@@ -197,7 +202,7 @@
     <div id="thumbnail-grid">
       {#each media_references as media_reference, media_index}
         <IntersectionObserver focused={current_media_reference_id === media_reference.id} on:intersect={handle_intersecting(media_reference.id)}>
-          <Thumbnail {media_reference} stars={media_reference.stars} view_count={media_reference.view_count} on:click={handle_thumbnail_click(media_index)} focused={current_media_reference_id === media_reference.id}/>
+          <Thumbnail {media_reference} stars={media_reference.stars} view_count={media_reference.view_count} show_video_preview={show_video_preview_thumbnails} on:click={handle_thumbnail_click(media_index)} focused={current_media_reference_id === media_reference.id}/>
         </IntersectionObserver>
       {/each}
       {#if loading_thumbnails}

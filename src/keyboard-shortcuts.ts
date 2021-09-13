@@ -10,6 +10,7 @@ const actions = {
   ToggleFitMedia: null,
   ToggleFullScreen: 'KeyF',
   PlayPauseMedia: 'Space',
+  ToggleVideoPreviewVsThumbails: 'KeyT',
 
   Star0: 'Digit0',
   Star1: 'Digit1',
