@@ -106,8 +106,8 @@
 
 <style>
   .container {
-    height: 100vh;
     width: 100%;
+    height: 100%;
     display: grid;
     /* padding: 10px; */
     grid-template-rows: minmax(0, 1fr);
@@ -119,7 +119,6 @@
     display: flex;
     justify-content: center;
     height: 100%;
-    width: 100%;
   }
   .media-file {
     max-height: 100%;

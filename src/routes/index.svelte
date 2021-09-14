@@ -188,6 +188,7 @@
   }
   function on_click_outside_media(e) {
     if (e.path[1] === this) {
+      FOCUS = 'thumbnail_grid'
       show_media_file = false
     }
   }
@@ -197,16 +198,16 @@
 <svelte:window on:keydown={keyboard_shortcuts.handler} />
 
 <div class="container">
-  {#if show_media_file}
-    <div class="media-file-container" on:click={on_click_outside_media}>
-      <MediaFile bind:FOCUS={FOCUS} media_reference_id={current_media_reference_id} media_file={current_media_file} media_reference={current_media_reference} />
-    </div>
-  {/if}
 
   <div id="toolbars-grid">
     <MediaReferenceTags bind:this={media_reference_el} bind:FOCUS={FOCUS} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
 
   <div id="search-plus-viewer">
+  {#if show_media_file}
+    <div class="media-file-container" on:click={on_click_outside_media}>
+      <MediaFile bind:FOCUS={FOCUS} media_reference_id={current_media_reference_id} media_file={current_media_file} media_reference={current_media_reference} />
+    </div>
+  {/if}
   <div id="search-container">
     <Search bind:FOCUS={FOCUS} on_submit={handle_search} />
     <h5 class="text-right">{total_unviewed} Unread Viewing ({current_media_index + 1}/{total_media_references}) </h5>
@@ -263,9 +264,10 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
   }
   .media-file-container {
-    position: fixed;
+    position: absolute;
     top: 0;
     z-index: 100;
     height: 100%;
