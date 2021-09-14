@@ -22,6 +22,7 @@
   $: {
     if (current_media_reference_id !== undefined) on_change_media_reference(current_media_reference_id)
   }
+  let media_reference_el
 
   // NOTE that if the page is longer than the pagination size, we wont detect that we can load more thumbnails
   let pagination_size = 20
@@ -30,7 +31,7 @@
   let loading_thumbnails = false
   let search_focus = false
   let media_reference_focus = false
-  let media_reference_input_focus = false
+  /* let media_reference_input_focus = false */
   let grid_width
   let num_grid_columns = 0
   $: {
@@ -161,10 +162,12 @@
     FocusNewTag: (e) => {
       e.preventDefault()
       console.log('Focus up!')
-      media_reference_input_focus = true
+      console.log(media_reference_el.focus_me())
+      /* media_reference_input_focus = true */
     }
   })
   $: {
+    console.log({ search_focus, media_reference_focus })
     if (search_focus || media_reference_focus) keyboard_shortcuts.disable()
     else keyboard_shortcuts.enable()
   }
@@ -190,7 +193,7 @@
   {/if}
 
   <div id="toolbars-grid">
-    <MediaReferenceTags bind:focus={media_reference_focus} bind:new_tag_focus={media_reference_input_focus} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
+    <MediaReferenceTags bind:this={media_reference_el} bind:focus={media_reference_focus} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
 
   <div id="search-plus-viewer">
   <div id="search-container">
@@ -260,6 +263,7 @@
     display: flex;
   }
   #thumbnail-grid-outer {
+    outline: none;
     width:100%;
     overflow-y: scroll;
   }

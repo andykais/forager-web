@@ -8,21 +8,26 @@
   export let hide_label = false
   export let allow_multiple = true
   export let allow_new_tags = false
-  export let input_focus = false
+
+  export function focus_me() {
+    console.log('focus_me')
+    input_element.focus()
+    input_focus = true
+  }
 
   onMount(async () => {
     await load_tags()
   })
 
-  $: console.log({ input_focus })
+  /* $: console.log({ input_focus }) */
+  let input_focus = false
   let suggestions_focus = false
-  $: {
-    if (input_focus) {
-      console.log('input focus?')
-      input_element.focus()
-      on_input()
-    }
-  }
+  /* $: { */
+  /*   if (input_focus) { */
+  /*     console.log('input focus?') */
+  /*     on_input() */
+  /*   } */
+  /* } */
   $: focus = input_focus || suggestions_focus
   let loading_tags = false
   let tags = []

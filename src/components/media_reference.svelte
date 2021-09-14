@@ -5,12 +5,17 @@
   export let tags = []
   export let media_reference
   export let focus = false
-  export let new_tag_focus = false
+  /* export let new_tag_focus = false */
 
-  $: {
-    console.log({ new_tag_focus })
+  export function focus_me() {
+    console.log('media-reference focus_me')
+    tag_search_el.focus_me()
   }
+  /* $: { */
+  /*   console.log({ new_tag_focus }) */
+  /* } */
 
+  let tag_search_el
   let new_tag_input = ''
   let add_tag_focus
   let tag_group_map = {}
@@ -50,6 +55,10 @@
         <label for="description">Description</label>
         <input id="description" type="text" value={media_reference?.description} />
       </div>
+      <div class="crud-input">
+        <label for="metadata">Description</label>
+        <input id="metadata" type="text" value={media_reference?.metadata} />
+      </div>
     </div>
     <div id="tags" style="width: {sidebar_width}px">
       {#each tag_groups as group}
@@ -71,12 +80,12 @@
       <label for="">Add New Tags</label>
       <div id="new-tags">
         <TagSearch
+          bind:this={tag_search_el}
           hide_label={true}
           allow_multiple={false}
           allow_new_tags={true}
           bind:input={new_tag_input}
           bind:focus={add_tag_focus}
-          bind:input_focus={new_tag_focus}
           on_submit={on_add_new_tags}
         />
         <button><h3>+</h3></button>
@@ -87,11 +96,13 @@
 
 <style>
   #media-tag-viewer {
+z-index: 101;
     padding: 5px;
     background-color: var(--secondary-bg-color);
     box-shadow: 0 3px 2px -2px rgba(0, 0, 0, 0.5);
     border-right: 3px solid white;
     width: calc(100% - 13px);
+    overflow-y: scroll;
   }
   #container {
     display: grid;
@@ -101,7 +112,8 @@
     height: 100%;
     /* display: flex; */
     /* flex-direction: column; */
-    width: 100%;
+    /* width: 100%; */
+    width: calc(100% - 10px);
   }
   #media-info {
   }

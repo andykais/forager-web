@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
   import * as date_fns from 'date-fns'
 
   export let media_reference
@@ -16,10 +15,9 @@
     display_stars = ([...stars_str, ...empty_stars_str]).join(' ')
   }
   $: {
-    url_path = show_video_preview ? '/api/video_preview' : '/api/thumbnail'
+    url_path = show_video_preview ? '/api/preview' : '/api/thumbnail'
   }
 
-  const dispatch = createEventDispatcher()
   const { source_created_at } = media_reference
   const source_created_ago = source_created_at
     ? `created ${date_fns.formatDistanceToNow(new Date(source_created_at))} ago`
