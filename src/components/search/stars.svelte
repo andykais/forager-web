@@ -2,7 +2,7 @@
   let stars = 0
 
   export let on_submit
-  export let focus = false
+  export let FOCUS
 
   const stars_indexes = Array(5).fill(0).map((_, i) => i + 1)
   let hovered_index = 0
@@ -19,10 +19,10 @@
     hovered_index = 0
   }
   function on_focus() {
-    focus = true
+    FOCUS = 'search:stars'
   }
   function on_blur() {
-    focus = false
+    FOCUS = 'thumbnail_grid'
   }
 
 </script>

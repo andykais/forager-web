@@ -8,6 +8,16 @@
   import Thumbnail from '../components/thumbnail.svelte'
   import MediaReferenceTags from '../components/media_reference.svelte'
 
+  let FOCUS = 'thumbnail_grid'
+  $: {
+    if (FOCUS === 'thumbnail_grid') {
+      if (thumbnail_grid_el) thumbnail_grid_el.focus()
+      keyboard_shortcuts.enable()
+    } else {
+      keyboard_shortcuts.disable()
+    }
+  }
+
   let show_video_preview_thumbnails = false
   let tags = []
   let media_references = []
@@ -23,15 +33,13 @@
     if (current_media_reference_id !== undefined) on_change_media_reference(current_media_reference_id)
   }
   let media_reference_el
+  let thumbnail_grid_el
 
   // NOTE that if the page is longer than the pagination size, we wont detect that we can load more thumbnails
   let pagination_size = 20
   let thumbnail_query = { limit: pagination_size }
   let has_more_thumbnails = true
   let loading_thumbnails = false
-  let search_focus = false
-  let media_reference_focus = false
-  /* let media_reference_input_focus = false */
   let grid_width
   let num_grid_columns = 0
   $: {
@@ -157,20 +165,14 @@
     Star5: (e) => star_current_media(5),
     ToggleViewTags: (e) => {},
     FocusSearch: (e) => {
-      console.log(e)
+      e.preventDefault()
+      FOCUS = 'search:tag'
     },
     FocusNewTag: (e) => {
       e.preventDefault()
-      console.log('Focus up!')
-      console.log(media_reference_el.focus_me())
-      /* media_reference_input_focus = true */
+      FOCUS = 'media_reference:tag'
     }
   })
-  $: {
-    console.log({ search_focus, media_reference_focus })
-    if (search_focus || media_reference_focus) keyboard_shortcuts.disable()
-    else keyboard_shortcuts.enable()
-  }
   async function handle_search(search_query) {
     if (Object.keys(search_query).length > 0) await load_thumbnails(search_query)
     else await load_thumbnails()
@@ -193,15 +195,15 @@
   {/if}
 
   <div id="toolbars-grid">
-    <MediaReferenceTags bind:this={media_reference_el} bind:focus={media_reference_focus} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
+    <MediaReferenceTags bind:this={media_reference_el} bind:FOCUS={FOCUS} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
 
   <div id="search-plus-viewer">
   <div id="search-container">
-    <Search bind:focus={search_focus} on_submit={handle_search} />
+    <Search bind:FOCUS={FOCUS} on_submit={handle_search} />
     <h5 class="text-right">{total_unviewed} Unread Viewing ({current_media_index + 1}/{total_media_references}) </h5>
   </div>
 
-  <div id="thumbnail-grid-outer" bind:clientWidth={grid_width} tabindex="0">
+  <div id="thumbnail-grid-outer" bind:this={thumbnail_grid_el} bind:clientWidth={grid_width} tabindex="0">
     <div id="thumbnail-grid">
       {#each media_references as media_reference, media_index}
         <IntersectionObserver focused={current_media_reference_id === media_reference.id} on:intersect={handle_intersecting(media_reference.id)}>

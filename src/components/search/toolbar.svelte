@@ -4,14 +4,10 @@
   import TagSearch from './tags.svelte'
   import StarsSearch from './stars.svelte'
 
-  let tag_search_focus = false
-  let stars_filter_focus = false
   let search_query = {}
 
-  export let focus = false
+  export let FOCUS
   export let on_submit
-
-  $: focus = tag_search_focus || stars_filter_focus // || sort_focus
 
   function handle_tag_select(selected_tags) {
     search_query = {...search_query, tag_ids: selected_tags.map(t => t.id)}
@@ -26,9 +22,9 @@
 </script>
 
 <div class="container">
-  <TagSearch bind:focus={tag_search_focus} on_submit={handle_tag_select} />
+  <TagSearch name="search" bind:FOCUS={FOCUS} on_submit={handle_tag_select} />
 
-  <StarsSearch bind:focus={stars_filter_focus} on_submit={handle_stars_select}/>
+  <StarsSearch bind:FOCUS={FOCUS} on_submit={handle_stars_select}/>
 
   <div>
     <h4>Sort</h4>

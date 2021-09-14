@@ -4,25 +4,13 @@
   export let loading = false
   export let tags = []
   export let media_reference
-  export let focus = false
-  /* export let new_tag_focus = false */
-
-  export function focus_me() {
-    console.log('media-reference focus_me')
-    tag_search_el.focus_me()
-  }
-  /* $: { */
-  /*   console.log({ new_tag_focus }) */
-  /* } */
+  export let FOCUS
 
   let tag_search_el
   let new_tag_input = ''
-  let add_tag_focus
   let tag_group_map = {}
   let tag_groups = []
   let sidebar_width
-
-  $: focus = add_tag_focus
 
   $: {
     tag_group_map = tags.reduce((acc, tag) => {
@@ -85,7 +73,8 @@
           allow_multiple={false}
           allow_new_tags={true}
           bind:input={new_tag_input}
-          bind:focus={add_tag_focus}
+          name="media_reference"
+          bind:FOCUS={FOCUS}
           on_submit={on_add_new_tags}
         />
         <button><h3>+</h3></button>

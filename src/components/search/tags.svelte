@@ -4,31 +4,23 @@
 
   export let input = ''
   export let on_submit
-  export let focus = false
+  export let name = ''
+  export let FOCUS
   export let hide_label = false
   export let allow_multiple = true
   export let allow_new_tags = false
 
-  export function focus_me() {
-    console.log('focus_me')
-    input_element.focus()
-    input_focus = true
+  $: {
+    if (FOCUS == `${name}:tag`) {
+      input_element.focus()
+    }
   }
-
   onMount(async () => {
     await load_tags()
   })
 
-  /* $: console.log({ input_focus }) */
-  let input_focus = false
-  let suggestions_focus = false
-  /* $: { */
-  /*   if (input_focus) { */
-  /*     console.log('input focus?') */
-  /*     on_input() */
-  /*   } */
-  /* } */
-  $: focus = input_focus || suggestions_focus
+  /* let input_focus = false */
+  /* let suggestions_focus = false */
   let loading_tags = false
   let tags = []
   let tag_ids_map = {}
@@ -128,21 +120,21 @@
   }
 
   function on_focus() {
-    input_focus = true
+    FOCUS = `${name}:tag`
   }
   function on_suggestion_focus(suggestion_index) {
     focused_suggestion_index = suggestion_index
     suggestions_buttons[focused_suggestion_index].focus()
-    suggestions_focus = true
+    FOCUS = `${name}:tag_suggestions`
   }
   function on_suggestion_blur(e) {
-    suggestions_focus = false
+    FOCUS = 'thumbnail_grid'
     if (!e.relatedTarget?.className.split(' ').includes('suggestion')) {
       show_suggestions = false
     }
   }
   async function on_blur(e) {
-    input_focus = false
+    FOCUS = 'thumbnail_grid'
     if (!e.relatedTarget?.className.split(' ').includes('suggestion')) {
       // relatedTarget is the body when we select a suggestion right now because they are not elements that can capture focus
       show_suggestions = false
@@ -161,12 +153,11 @@
     on_submit(input_tag_ids)
   }
   function on_select_suggestion(tag_id, e) {
-    if (input_focus) {
+    if (FOCUS === `${name}:tag`) {
       // slightly annoyed  that this even has to exist.
       // Somehow hitting enter while the input is focused is triggering the button on:click event
       handle_submit(e)
       show_suggestions = false
-      input_focus = true
       return
     }
     e.preventDefault()
@@ -178,12 +169,12 @@
     } else {
       input = `${selected_tag.group}:${selected_tag.name}`
     }
+    FOCUS = `${name}:tag`
     input_element.focus()
     show_suggestions = false
   }
   function on_keydown(e) {
-    if (e.code === 'Escape') console.log(e.code, {focus, input_focus})
-    if(focus) {
+    if([`${name}:tag`, `${name}:tag_suggestions`].includes(FOCUS)) {
       if (e.code === 'Escape') {
         show_suggestions = false
         input_element.blur()
@@ -202,12 +193,6 @@
         }
       } else {
         show_suggestions =  true
-      }
-    } else {
-      if(e.code === 'Slash') {
-        input_element.focus()
-        e.preventDefault()
-        focus = true
       }
     }
   }
