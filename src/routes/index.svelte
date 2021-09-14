@@ -10,10 +10,17 @@
 
   let FOCUS = 'thumbnail_grid'
   $: {
-    if (FOCUS === 'thumbnail_grid') {
+    if (FOCUS === 'thumbnail_grid' && show_media_file) {
+      // TODO this is a hack until we have a stack on the FOCUS
+      FOCUS = 'media_file'
+    }
+
+    if (FOCUS === 'thumbnail_grid' || FOCUS.startsWith('media_file')) {
       if (thumbnail_grid_el) thumbnail_grid_el.focus()
+      console.log('Index enable', { FOCUS })
       keyboard_shortcuts.enable()
     } else {
+    console.log('Index disable', { FOCUS })
       keyboard_shortcuts.disable()
     }
   }
@@ -128,7 +135,7 @@
       if (media_references.length && !show_media_file) open_media_file()
     },
     CloseMedia: (e) => {
-      show_media_file = false
+      if (FOCUS.startsWith('media_file')) show_media_file = false
     },
     NextMedia: (e) => {
       e.preventDefault()
@@ -153,8 +160,10 @@
       else current_media_index = current_media_index - num_grid_columns
     },
     ToggleVideoPreviewVsThumbails: (e) => {
-      e.preventDefault()
-      show_video_preview_thumbnails = !show_video_preview_thumbnails 
+      if (FOCUS === 'thumbnail_grid') {
+        e.preventDefault()
+        show_video_preview_thumbnails = !show_video_preview_thumbnails 
+      }
     },
 
     Star0: (e) => star_current_media(0),
@@ -168,10 +177,10 @@
       e.preventDefault()
       FOCUS = 'search:tag'
     },
-    FocusNewTag: (e) => {
-      e.preventDefault()
-      FOCUS = 'media_reference:tag'
-    }
+    /* FocusNewTag: (e) => { */
+    /*   e.preventDefault() */
+    /*   FOCUS = 'media_reference:tag' */
+    /* } */
   })
   async function handle_search(search_query) {
     if (Object.keys(search_query).length > 0) await load_thumbnails(search_query)
@@ -190,7 +199,7 @@
 <div class="container">
   {#if show_media_file}
     <div class="media-file-container" on:click={on_click_outside_media}>
-      <MediaFile media_reference_id={current_media_reference_id} media_file={current_media_file} media_reference={current_media_reference} />
+      <MediaFile bind:FOCUS={FOCUS} media_reference_id={current_media_reference_id} media_file={current_media_file} media_reference={current_media_reference} />
     </div>
   {/if}
 

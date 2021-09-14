@@ -101,16 +101,20 @@
     else if (split.length === 2) return { group: split[0], name: split[1] }
     else throw new Error('invalid tag')
   }
-  async function on_input() {
-    invalid_tag_error = ''
+  function read_input() {
     unknown_tags = []
     const split = input.split(/[ ]+/).filter(str => str.length > 0)
     input_tag_ids = []
     for (const str of split) {
-        const matching_tag = tag_display_names_map[str]
-        if (matching_tag) input_tag_ids.push({id: matching_tag.id, name: matching_tag.name, group: matching_tag.group })
-        else unknown_tags.push(parse_tag_str(str))
+      const matching_tag = tag_display_names_map[str]
+      if (matching_tag) input_tag_ids.push({id: matching_tag.id, name: matching_tag.name, group: matching_tag.group })
+      else unknown_tags.push(parse_tag_str(str))
     }
+    return split
+  }
+  function on_input() {
+    invalid_tag_error = ''
+    const split = read_input()
 
     if (input.length === 0) return find_tag_suggestions('')
     if (input[input.length - 1] === ' ') return find_tag_suggestions('')
@@ -128,6 +132,7 @@
     FOCUS = `${name}:tag_suggestions`
   }
   function on_suggestion_blur(e) {
+    console.log('on_suggestion_blur', { FOCUS })
     FOCUS = 'thumbnail_grid'
     if (!e.relatedTarget?.className.split(' ').includes('suggestion')) {
       show_suggestions = false
@@ -135,6 +140,7 @@
   }
   async function on_blur(e) {
     FOCUS = 'thumbnail_grid'
+    console.log('on_blur', { FOCUS })
     if (!e.relatedTarget?.className.split(' ').includes('suggestion')) {
       // relatedTarget is the body when we select a suggestion right now because they are not elements that can capture focus
       show_suggestions = false
@@ -142,6 +148,8 @@
   }
   function handle_submit(e) {
     e.preventDefault()
+    read_input()
+    console.log('selected', unknown_tags)
     if(unknown_tags.length) {
       if (allow_new_tags) {
         console.log({ allow_new_tags })

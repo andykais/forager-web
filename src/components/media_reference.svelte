@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { KeyboardShortcuts } from '../keyboard-shortcuts'
   import { client } from '../client'
   import TagSearch from './search/tags.svelte'
   export let loading = false
@@ -21,6 +22,11 @@
     tag_groups = Object.keys(tag_group_map)
     tag_groups.sort((a, b) => a.localeCompare(b))
   }
+  $: {
+  console.log('MediaReference:', FOCUS)
+    if (FOCUS === 'media_file:fullscreen') keyboard_shortcuts.disable()
+    else keyboard_shortcuts.enable()
+  }
 
   async function on_add_new_tags(add_tag) {
     tags = await client.tag.add_tags(media_reference.id, add_tag)
@@ -30,7 +36,15 @@
     const { name, group } = remove_tag
     tags = await client.tag.remove_tags(media_reference.id, [{ name, group }])
   }
+  const keyboard_shortcuts = new KeyboardShortcuts({
+    FocusNewTag: (e) => {
+      e.preventDefault()
+      FOCUS = 'media_reference:tag'
+    }
+  })
 </script>
+
+<svelte:window on:keydown={keyboard_shortcuts.handler} />
 
 <div id="media-tag-viewer">
   <div id="container" bind:clientWidth={sidebar_width}>

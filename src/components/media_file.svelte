@@ -1,10 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  /* import { client } from '../client' */
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
 
   onMount(() => {
-    /* await load_media_file_info(media_reference_id) */
     document.addEventListener('fullscreenchange', handle_escape_fullscreen, false)
     document.addEventListener('mozfullscreenchange', handle_escape_fullscreen, false)
     document.addEventListener('MSFullscreenChange', handle_escape_fullscreen, false)
@@ -20,29 +18,24 @@
   function handle_escape_fullscreen(e) {
     if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
     } else {
-      is_fullscreen = false
+      FOCUS = 'media_file'
     }
   }
 
-  /* async function load_media_file_info(media_reference_id) { */
-  /*   console.log('loading data info') */
-  /*   const data = await client.media.get_file_info(media_reference_id) */
-  /*   media_reference = data.media_reference */
-  /*   media_file = data.media_file */
-  /*   tags = data.tags */
-  /* } */
   export let media_reference_id
   export let media_reference
   export let media_file
-  /* let media_file = null */
-  /* let media_reference */
-  /* let tags */
+  export let FOCUS
+  $: {
+    if (media_reference_id) {
+      // TODO disable this for now. We cant 
+      // if (FOCUS !== 'media_file:fullscreen') FOCUS = 'media_file'
+    }
+  }
+    $: console.log('MediaFile:', FOCUS)
   let media_container
   let media_element
   let video_element
-  // NOTE Esc key while fullscreened doesnt appear to get captured
-  let is_fullscreen = false
-  /* $: load_media_file_info(media_reference_id) */
   let show_video_preview = false
 
   function open_fullscreen(element) {
@@ -55,17 +48,17 @@
       /* IE11 */
       element.msRequestFullscreen()
     }
-    is_fullscreen = true
+    FOCUS = 'media_file:fullscreen'
   }
   function close_fullscreen(element) {
     document.exitFullscreen()
-    is_fullscreen = false
+    FOCUS = 'media_file'
   }
 
   const keyboard_shortcuts = new KeyboardShortcuts({
     ToggleFullScreen: (e) => {
       if (media_element) {
-        if (is_fullscreen) close_fullscreen(media_element)
+        if (FOCUS === 'media_file:fullscreen') close_fullscreen(media_element)
         else open_fullscreen(media_element)
       }
     },
