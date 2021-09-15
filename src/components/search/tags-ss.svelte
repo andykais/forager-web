@@ -104,7 +104,6 @@
 
 <div class="container">
   <form action="submit" on:submit={handle_submit}>
-    <h4>Tags</h4>
     <input type="text" bind:value={input} bind:this={input_element} on:input={on_input} on:focus={on_focus} on:blur={on_blur}>
     <div class="suggestions-container">
       {#each search_results as suggestion, suggestion_index}
@@ -130,7 +129,7 @@
     position: relative;
   }
   input {
-    width: 100%;
+    width: calc(100% - 8px);
   }
   .suggestions-container {
     position: absolute;

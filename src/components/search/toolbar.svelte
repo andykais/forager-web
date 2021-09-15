@@ -29,7 +29,10 @@
 </script>
 
 <div class="container">
-  <TagSearch name="search" on_submit={handle_tag_select} />
+  <div>
+    <h4>Tags</h4>
+    <TagSearch name="search" on_submit={handle_tag_select} />
+  </div>
 
   <StarsSearch on_submit={handle_stars_select}/>
 

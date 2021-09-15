@@ -8,7 +8,6 @@
   export let tags = []
   export let media_reference
 
-  let tag_search_el
   let new_tag_input = ''
   let tag_group_map = {}
   let tag_groups = []
@@ -72,26 +71,25 @@
                 <span class="tag-name" title={tag.name}>{tag.name}</span>
                 <span>{tag.media_reference_count}</span>
               </button>
+              <!-- TODO on hover show these buttons -->
+              <button class="flip-text" on:click={() => remove_tag(tag)}>✎</button>
+              <button on:click={() => remove_tag(tag)}>📋</button>
               <button on:click={() => remove_tag(tag)}>X</button>
             {/each}
+          </div>
+          <div id="new-tag">
+            <TagSearch
+              allow_multiple={false}
+              name="media_reference"
+              bind:input={new_tag_input}
+              on_submit={on_add_new_tags}
+            />
+            <button><h3>+</h3></button>
           </div>
         </div>
       {/each}
     </div>
     <div>
-      <label for="">Add New Tags</label>
-      <div id="new-tags">
-        <TagSearch
-          bind:this={tag_search_el}
-          hide_label={true}
-          allow_multiple={false}
-          allow_new_tags={true}
-          bind:input={new_tag_input}
-          name="media_reference"
-          on_submit={on_add_new_tags}
-        />
-        <button><h3>+</h3></button>
-      </div>
     </div>
   </div>
 </div>
@@ -133,8 +131,9 @@ z-index: 101;
   }
   .tag-container {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto auto;
     grid-gap: 5px;
+    margin-bottom: 5px;
   }
   .tag {
     box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.2);
@@ -151,10 +150,10 @@ z-index: 101;
     overflow-x: hidden;
     text-overflow: ellipsis;
   }
-  #new-tags {
+  #new-tag {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    grid-gap: 10px;
+    grid-gap: 5px;
     align-items: center;
     width: 100%;
   }
@@ -164,5 +163,11 @@ z-index: 101;
   #new-tags > div {
     background-color: red;
     width: 100%;
+  }
+  .flip-text {
+    -webkit-transform:rotateY(180deg);
+    -moz-transform:rotateY(180deg);
+    -o-transform:rotateY(180deg);
+    -ms-transform:rotateY(180deg);
   }
 </style>
