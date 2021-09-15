@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
+  import { focus } from '../stores/focus'
 
   onMount(() => {
+    focus.stack('media_file')
     document.addEventListener('fullscreenchange', handle_escape_fullscreen, false)
     document.addEventListener('mozfullscreenchange', handle_escape_fullscreen, false)
     document.addEventListener('MSFullscreenChange', handle_escape_fullscreen, false)
@@ -18,21 +20,14 @@
   function handle_escape_fullscreen(e) {
     if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
     } else {
-      FOCUS = 'media_file'
+      focus.stack('media_file')
     }
   }
 
   export let media_reference_id
   export let media_reference
   export let media_file
-  export let FOCUS
-  $: {
-    if (media_reference_id) {
-      // TODO disable this for now. We cant 
-      // if (FOCUS !== 'media_file:fullscreen') FOCUS = 'media_file'
-    }
-  }
-    $: console.log('MediaFile:', FOCUS)
+
   let media_container
   let media_element
   let video_element
@@ -48,17 +43,17 @@
       /* IE11 */
       element.msRequestFullscreen()
     }
-    FOCUS = 'media_file:fullscreen'
+    focus.stack('media_file:fullscreen')
   }
   function close_fullscreen(element) {
     document.exitFullscreen()
-    FOCUS = 'media_file'
+    focus.pop('media_file:fullscreen')
   }
 
   const keyboard_shortcuts = new KeyboardShortcuts({
     ToggleFullScreen: (e) => {
       if (media_element) {
-        if (FOCUS === 'media_file:fullscreen') close_fullscreen(media_element)
+        if ($focus === 'media_file:fullscreen') close_fullscreen(media_element)
         else open_fullscreen(media_element)
       }
     },

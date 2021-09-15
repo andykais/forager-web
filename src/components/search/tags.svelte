@@ -279,7 +279,7 @@
     width: calc(100% - 5px);
   }
   .suggestions {
-    z-index: 100;
+    z-index: 80;
     top: -1px;
     position: absolute;
     width: calc(100% - 2px);

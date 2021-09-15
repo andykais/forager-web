@@ -1,10 +1,10 @@
 <script lang="ts">
-  let stars = 0
+  import { focus } from '../../stores/focus'
 
   export let on_submit
-  export let FOCUS
 
   const stars_indexes = Array(5).fill(0).map((_, i) => i + 1)
+  let stars = 0
   let hovered_index = 0
 
   function on_star_select(index) {
@@ -19,10 +19,10 @@
     hovered_index = 0
   }
   function on_focus() {
-    FOCUS = 'search:stars'
+    focus.stack('search:stars')
   }
   function on_blur() {
-    FOCUS = 'thumbnail_grid'
+    focus.reset('thumbnail_grid')
   }
 
 </script>

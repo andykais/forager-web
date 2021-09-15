@@ -1,11 +1,12 @@
 <script lang="ts">
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
   import { client } from '../client'
-  import TagSearch from './search/tags.svelte'
+  import TagSearch from './search/tags-ss.svelte'
+  import { focus } from '../stores/focus'
+
   export let loading = false
   export let tags = []
   export let media_reference
-  export let FOCUS
 
   let tag_search_el
   let new_tag_input = ''
@@ -23,8 +24,7 @@
     tag_groups.sort((a, b) => a.localeCompare(b))
   }
   $: {
-  console.log('MediaReference:', FOCUS)
-    if (FOCUS === 'media_file:fullscreen') keyboard_shortcuts.disable()
+    if ($focus === 'media_file:fullscreen') keyboard_shortcuts.disable()
     else keyboard_shortcuts.enable()
   }
 
@@ -39,7 +39,7 @@
   const keyboard_shortcuts = new KeyboardShortcuts({
     FocusNewTag: (e) => {
       e.preventDefault()
-      FOCUS = 'media_reference:tag'
+      focus.stack('media_reference:tag')
     }
   })
 </script>
@@ -88,7 +88,6 @@
           allow_new_tags={true}
           bind:input={new_tag_input}
           name="media_reference"
-          bind:FOCUS={FOCUS}
           on_submit={on_add_new_tags}
         />
         <button><h3>+</h3></button>

@@ -7,7 +7,6 @@
 
   let search_query = {}
 
-  export let FOCUS
   export let on_submit
   /* $: { */
   /*   search_query = { stars: star_count, tag_ids: selected_tags.map(t => t.id) } */
@@ -16,9 +15,10 @@
   /* } */
 
   function handle_tag_select(selected_tags) {
+  console.log('handle_tag_select')
     // NOTE perf: if we need to speed things up we can store tag_ids client side
     search_query = {...search_query, tags: selected_tags}
-    if (selected_tags.length === 0) delete search_query.tag_ids
+    if (selected_tags.length === 0) delete search_query.tags
     on_submit(search_query)
   }
   function handle_stars_select(star_count) {
@@ -29,9 +29,9 @@
 </script>
 
 <div class="container">
-  <TagSearch name="search" bind:FOCUS={FOCUS} on_submit={handle_tag_select} />
+  <TagSearch name="search" on_submit={handle_tag_select} />
 
-  <StarsSearch bind:FOCUS={FOCUS} on_submit={handle_stars_select}/>
+  <StarsSearch on_submit={handle_stars_select}/>
 
   <div>
     <h4>Sort</h4>

@@ -7,22 +7,17 @@
   import IntersectionObserver from '../components/intersection_observer.svelte'
   import Thumbnail from '../components/thumbnail.svelte'
   import MediaReferenceTags from '../components/media_reference.svelte'
+  import { focus } from '../stores/focus'
 
-  let FOCUS = 'thumbnail_grid'
   $: {
-    if (FOCUS === 'thumbnail_grid' && show_media_file) {
-      // TODO this is a hack until we have a stack on the FOCUS
-      FOCUS = 'media_file'
-    }
-
-    if (FOCUS === 'thumbnail_grid' || FOCUS.startsWith('media_file')) {
-      if (thumbnail_grid_el) thumbnail_grid_el.focus()
-      console.log('Index enable', { FOCUS })
+    // TODO we can probably move Escape into MediaFile and bind show_media_file (or use a store even)
+    if ($focus === 'thumbnail_grid' || $focus.startsWith('media_file')) {
+      /* if (thumbnail_grid_el) thumbnail_grid_el.focus() */
       keyboard_shortcuts.enable()
     } else {
-    console.log('Index disable', { FOCUS })
       keyboard_shortcuts.disable()
     }
+    console.log('Index', { $focus })
   }
 
   let show_video_preview_thumbnails = false
@@ -58,7 +53,6 @@
   onMount(async () => {
     tags = await client.tag.list()
     tags.sort((a, b) => a.group.localeCompare(b.group))
-    /* const result = await client.media.search({ tags: [{ name: 'drawing', group: 'original' }], limit: 100, offset: 0 }) */
     await load_thumbnails()
   })
 
@@ -128,14 +122,11 @@
     media_references[current_media_index].stars = star_count
   }
   const keyboard_shortcuts = new KeyboardShortcuts({
-    JumpToTop: (e) => {},
-    JumpToBottom: (e) => {},
-
     OpenMedia: (e) => {
       if (media_references.length && !show_media_file) open_media_file()
     },
-    CloseMedia: (e) => {
-      if (FOCUS.startsWith('media_file')) show_media_file = false
+    Escape: (e) => {
+      if ($focus === 'media_file') show_media_file = false
     },
     NextMedia: (e) => {
       e.preventDefault()
@@ -160,7 +151,8 @@
       else current_media_index = current_media_index - num_grid_columns
     },
     ToggleVideoPreviewVsThumbails: (e) => {
-      if (FOCUS === 'thumbnail_grid') {
+      // TODO if we stop meshing grid keyboard shortcuts w/ media file shortcuts, we dont need  this if statement
+      if ($focus === 'thumbnail_grid') {
         e.preventDefault()
         show_video_preview_thumbnails = !show_video_preview_thumbnails 
       }
@@ -175,20 +167,18 @@
     ToggleViewTags: (e) => {},
     FocusSearch: (e) => {
       e.preventDefault()
-      FOCUS = 'search:tag'
+      console.log('focus search')
+      focus.stack('search:tag:input')
     },
-    /* FocusNewTag: (e) => { */
-    /*   e.preventDefault() */
-    /*   FOCUS = 'media_reference:tag' */
-    /* } */
   })
   async function handle_search(search_query) {
+  console.log('handle_search', search_query)
     if (Object.keys(search_query).length > 0) await load_thumbnails(search_query)
     else await load_thumbnails()
   }
   function on_click_outside_media(e) {
     if (e.path[1] === this) {
-      FOCUS = 'thumbnail_grid'
+      focus.reset('thumbnail_grid')
       show_media_file = false
     }
   }
@@ -200,16 +190,16 @@
 <div class="container">
 
   <div id="toolbars-grid">
-    <MediaReferenceTags bind:this={media_reference_el} bind:FOCUS={FOCUS} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
+    <MediaReferenceTags bind:this={media_reference_el} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
 
   <div id="search-plus-viewer">
   {#if show_media_file}
     <div class="media-file-container" on:click={on_click_outside_media}>
-      <MediaFile bind:FOCUS={FOCUS} media_reference_id={current_media_reference_id} media_file={current_media_file} media_reference={current_media_reference} />
+      <MediaFile media_reference_id={current_media_reference_id} media_file={current_media_file} media_reference={current_media_reference} />
     </div>
   {/if}
   <div id="search-container">
-    <Search bind:FOCUS={FOCUS} on_submit={handle_search} />
+    <Search on_submit={handle_search} />
     <h5 class="text-right">{total_unviewed} Unread Viewing ({current_media_index + 1}/{total_media_references}) </h5>
   </div>
 

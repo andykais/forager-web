@@ -1,7 +1,8 @@
 <script lang="ts">
   import { client } from '../../client'
+  import { KeyboardShortcuts } from '../../keyboard-shortcuts'
+  import { focus } from '../../stores/focus'
 
-  export let FOCUS
   export let name
   export let on_submit
 
@@ -12,6 +13,15 @@
   let throttled = false
   let search_results = []
 
+  $: {
+    if (input_element && $focus === `${name}:tag:input`) input_element.focus()
+    if ([`${name}:tag:input`, `${name}:tag:suggestion`].includes($focus)) {
+      keyboard_shortcuts.enable()
+    } else {
+      keyboard_shortcuts.disable()
+    }
+  }
+
   async function on_input(e) {
     // FWIW this wont handle a user editing a tag further back
     // we could do something more complicated like check the diff location between old input & new input
@@ -20,58 +30,83 @@
     const current_input = input_tags.at(-1)
     if(!throttled) {
       throttled = true
-      search_results = await client.tag.search({ ...current_input, filter: selected_tags })
-      console.log(search_results)
+      search_results = await client.tag.search({ name: '', ...current_input, filter: selected_tags })
       throttled = false
     }
   }
   function on_select_suggestion(suggestion) {
-    console.log('on_select_suggestion')
+    // for some reason clicking enter inside the input while there are suggestions present will trigger on click for the button so we need to ignore that click
+    if ($focus === `${name}:tag:input`) return 
     input = input.substr(0, input.lastIndexOf(' ') + 1) + render_display_name(suggestion)
     input_element.focus()
     search_results = []
   }
 
   function on_focus_suggestion(e) {
-    console.log('on_focus_suggestion')
-    FOCUS = `${name}:tag_suggestion`
+    focus.stack(`${name}:tag:suggestion`)
   }
   function on_blur_suggestion(e) {
-    console.log('on_blur_suggestion')
-  // UNDO w/ store
-    /* FOCUS = `${name}:tag_suggestion` */
+    focus.pop(`${name}:tag:suggestion`)
   }
 
   function on_focus(e) {
-    console.log('focus?')
-    FOCUS = `${name}:tag`
+    focus.stack(`${name}:tag:input`)
+  }
+  function on_blur(e) {
+    focus.pop(`${name}:tag:input`)
   }
 
   function handle_submit(e) {
-    console.log('handle?')
     e.preventDefault()
     on_submit(parse_input(input))
   }
 
-  function parse_input(input: sting) {
-    return input.split(/ +/).map(str => {
-      let group = ''
-      let name = str
-      if (str.includes(':')) [group, name] = str.split(':')
-      return { group, name }
-    })
+  function parse_input(input) {
+    return input.split(/ +/)
+      .filter(str => str.length)
+      .map(str => {
+        let group = ''
+        let name = str
+        if (str.includes(':')) [group, name] = str.split(':')
+        return { group, name }
+      })
   }
   function render_display_name({ group, name }) {
     if (group) return `${group}:${name}`
     else return name
   }
+  const keyboard_shortcuts = new KeyboardShortcuts({
+    Escape: (e) => {
+      console.log('Tag Escape triggered')
+      e.preventDefault()
+      search_results = []
+      input_element.blur()
+    },
+    // NOTE we could add another handler in KeyboardShortcuts for PrevSuggestion, NextSuggestion. Its redundant though
+    NextTagSuggestion: (e) => {
+      e.preventDefault()
+      if(suggestions_elements.length === 0) return
+      if(current_suggestion_index === null) current_suggestion_index = 0
+      else current_suggestion_index = (current_suggestion_index + 1) % suggestions_elements.length
+      suggestions_elements[current_suggestion_index].focus()
+    },
+    PrevTagSuggestion: (e) => {
+      e.preventDefault()
+      if(suggestions_elements.length === 0) return
+      if(current_suggestion_index === null) current_suggestion_index = 0
+      current_suggestion_index  = (suggestions_elements.length + (current_suggestion_index - 1)) % suggestions_elements.length
+      suggestions_elements[current_suggestion_index].focus()
+    }
+  })
 </script>
+
+<svelte:window on:keydown={keyboard_shortcuts.handler} />
 
 <div class="container">
   <form action="submit" on:submit={handle_submit}>
     <h4>Tags</h4>
-    <input type="text" bind:value={input} bind:this={input_element} on:input={on_input} on:focus={on_focus}>
-    <div class="suggestions-container" tabindex="0">
+    <input type="text" bind:value={input} bind:this={input_element} on:input={on_input} on:focus={on_focus} on:blur={on_blur}>
+    <div class="suggestions-container">
       {#each search_results as suggestion, suggestion_index}
         <button
           class="suggestion"
@@ -90,7 +125,7 @@
 
 <style>
   .container {
-    z-index: 101;
+    z-index: 99;
     width: 100%;
     position: relative;
   }

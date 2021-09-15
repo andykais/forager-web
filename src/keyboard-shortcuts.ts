@@ -1,6 +1,9 @@
 const actions = {
+  PrevTagSuggestion: 'ArrowUp',
+  NextTagSuggestion: 'ArrowDown',
+
   OpenMedia: 'Enter',
-  CloseMedia: 'Escape',
+  Escape: 'Escape',
   NextMedia: 'ArrowRight',
   PrevMedia: 'ArrowLeft',
   DownMedia: 'ArrowDown',
@@ -26,7 +29,8 @@ type KeyboardAction = keyof typeof actions
 const keycode_actions: Record<null | string, KeyboardAction> = Object.keys(actions).reduce(
   (acc, action: KeyboardAction) => {
     const keycode = actions[action]
-    acc[keycode] = action
+    if(acc[keycode]) acc[keycode].push(action)
+    else acc[keycode] = [action]
     return acc
   },
   {}
@@ -43,10 +47,12 @@ class KeyboardShortcuts {
     if (e.ctrlKey) keys_down.push('Ctrl')
     keys_down.push(e.code)
     const code = keys_down.join('-')
-    const action = keycode_actions[code]
-    if (action) {
-      if (this.defined_actions[action]) {
-        this.defined_actions[action](e)
+    if(keycode_actions[code] === undefined) return
+    for (const action of keycode_actions[code]) {
+      if (action) {
+        if (this.defined_actions[action]) {
+          this.defined_actions[action](e)
+        }
       }
     }
   }
