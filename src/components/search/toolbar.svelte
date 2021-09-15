@@ -1,16 +1,23 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { client } from '../../client'
-  import TagSearch from './tags.svelte'
+  /* import TagSearch from './tags.svelte' */
+  import TagSearch from './tags-ss.svelte'
   import StarsSearch from './stars.svelte'
 
   let search_query = {}
 
   export let FOCUS
   export let on_submit
+  /* $: { */
+  /*   search_query = { stars: star_count, tag_ids: selected_tags.map(t => t.id) } */
+  /*   if (search_query.tag_ids.length === 0) delete search_query.tag_ids */
+  /*   if (search_query.stars === 0) delete search_query.stars */
+  /* } */
 
   function handle_tag_select(selected_tags) {
-    search_query = {...search_query, tag_ids: selected_tags.map(t => t.id)}
+    // NOTE perf: if we need to speed things up we can store tag_ids client side
+    search_query = {...search_query, tags: selected_tags}
     if (selected_tags.length === 0) delete search_query.tag_ids
     on_submit(search_query)
   }

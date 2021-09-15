@@ -80,10 +80,10 @@
   {#if media_file}
     <div class="media-file-container" bind:this={media_element}>
       {#if media_file.media_type === 'IMAGE'}
-        <img class="media-file" src="/api/media_file/{media_reference.id}" alt="no bueno" />
+        <img class="media-file" src="/api/media_file/{media_reference.id}" alt="media file" />
       {:else if media_file.media_type === 'VIDEO'}
         {#if show_video_preview}
-          <img class="media-file" src="/api/video_preview/{media_reference.id}" />
+          <img class="media-file" src="/api/video_preview/{media_reference.id}" alt="media file video preview" />
         {:else}
           <video
             bind:this={video_element}
@@ -92,8 +92,10 @@
             src="/api/media_file/{media_reference_id}"
             type="video/mp4"
             controls
-            autoplay
-          />
+            autoplay>
+            <source src="/api/media_file/{media_reference_id}"/>
+            <track kind="captions"/> <!-- this exists purely to quiet down an A11y rule -->
+          </video>
         {/if}
       {/if}
     </div>

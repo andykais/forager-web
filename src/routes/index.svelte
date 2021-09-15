@@ -254,11 +254,6 @@
     grid-template-columns: minmax(0, 1fr) 3fr;
     grid-template-rows: 100%;
   }
-  #media-tag-viewer {
-    /* height: 100vh; */
-    box-shadow: 0 3px 2px 2px rgba(0,0,0,0.5);
-    /* z-index: 100; */
-  }
   #search-plus-viewer {
     height: 100vh;
     height: 100%;

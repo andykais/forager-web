@@ -35,10 +35,8 @@ class ForagerApiServer {
     },
   }
   tag = {
-    list: () => {
-      const result =  forager.tag.list()
-      return result
-    },
+    list: forager.tag.list,
+    search: forager.tag.search,
     add_tags: (media_reference_id, tags) => {
       const result = forager.tag.add_tags(media_reference_id, tags)
       return result
