@@ -30,10 +30,11 @@ class ForagerApiServer {
       const data = forager.media.get_file_info(query_data)
       return data
     },
-    list: (query_data) => {
-      const result = forager.media.list(query_data)
-      return result
-    },
+    list: forager.media.list,
+    // list: (query_data) => {
+    //   const result = forager.media.list(query_data)
+    //   return result
+    // },
   }
   tag = {
     list: forager.tag.list,

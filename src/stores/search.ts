@@ -1,5 +1,8 @@
-import { writable, derived } from 'svelte/store'
+import { get, writable, derived } from 'svelte/store'
 import { client } from '../client'
+import type { MediaReferenceTR } from 'forager/models/media_reference'
+
+const PAGINATION_SIZE = 20
 
 type TagIdentifier = { name: string; group?: string }
 type SearchQuery = { tag?: TagIdentifier[]; stars?: number }
@@ -12,10 +15,17 @@ const search_query = (() => {
       set(query)
     },
     set_tags: (tags: TagIdentifier[]) => {
-      update((q) => ({ ...q, tags }))
+      update(q => ({ ...q, tags }))
     },
     set_stars: (stars?: number) => {
-      update((q) => ({ ...q, stars }))
+      update(q => {
+        // TODO when we add `toggle_star_operator`, we should make this function better
+        if (stars === 0) {
+          delete q.stars
+          return  q
+        }
+        return {...q, stars}
+      })
     },
     toggle_star_operator: () => {
       throw new Error('unimplemented')
@@ -29,99 +39,83 @@ const search_query = (() => {
   }
 })()
 
+type SearchApiParams = {query: SearchQuery; limit: number; cursor?: Date}
 const search_results = (() => {
-  const api_params = { query: {}, cursor: null, limit: 100 }
-  const values = writable({
+  const api_params: SearchApiParams = { query: {}, cursor: null, limit: PAGINATION_SIZE }
+  const store = writable({
     loading: false,
     has_more_results: true,
-    results: [],
-    total_results: 0,
+    results: [] as MediaReferenceTR[],
+    total: 0,
+    unread_count: 0,
   })
-  const { subscribe, update, set } = values
+  const { subscribe, update, set } = store
 
   // NOTE this returns an unsubscribe method, but I have no idea where to put it.
   // Thats technically a memory leak but its small enough that we shouldnt care
-  search_query.subscribe((query) => {
-    load_results(query, true)
+  let initial_event = true
+  const unsubscribe_search_query = search_query.subscribe(query => {
+    if (!initial_event) {
+      api_params.query = query
+      load_results(true)
+    }
+    initial_event = false
   })
 
-  function load_results(query: SearchQuery, refresh: boolean) {
-    update((r) => ({ ...r, query, loading: true, has_more_results: true }))
+
+  async function load_results(refresh: boolean) {
+    if (get(store).has_more_results === false) return
+    if (get(store).loading === true) throw new Error('queueing up/throttling multiple requests is unimplemented')
+    if (refresh) api_params.cursor = null
+    update((r) => ({ ...r, loading: true }))
     const is_empty_search_query = Object.keys(api_params.query).length === 0
     const data = is_empty_search_query
-      ? await client.media.list(api_params)
+      ? await client.media.list({ cursor: api_params.cursor, limit: api_params.limit })
       : await client.media.search(api_params)
-    const has_more_results = data.results.length !== 0
+    api_params.cursor = data.cursor
+    const has_more_results = data.result.length !== 0
+    const unread_count = data.result.reduce((count, mr) => count + mr.view_count, 0)
+    console.log(data)
     if (refresh) {
-      set({ loading: false, has_more_results, results: data.results, total_results: data.total })
+      set({ loading: false, has_more_results, results: data.result, total: data.total, unread_count })
     } else {
-      update(r => ({ loading: false, has_more_results: results: r.results.concat(data.results), total_results: data.total }))
+      update(r => ({
+        loading: false,
+        has_more_results,
+        unread_count: r.unread_count + unread_count,
+        results: r.results.concat(data.result),
+        total: data.total
+      }))
     }
   }
 
   return {
     subscribe,
-    load_more: () => {},
+    // we lose types but this should cancel the boys properly
+    // subscribe(...args: any[]) {
+    //   const unsubscribe = subscribe(...args)
+    //   return () => {
+    //     unsubscribe_search_query()
+    //     unsubscribe()
+    //   }
+    // },
+
+    load_more: () => {
+      load_results(false)
+    },
+
+    add_view: async (media_reference_index: number) => {
+      const media_reference = get(store).results[media_reference_index]
+      if (media_reference === undefined) throw new Error('attempted accessing non-existent index')
+      await client.media.add_view(media_reference.id)
+      store.update(r => {
+        let unread_count = r.unread_count
+        if (media_reference.view_count === 0) unread_count ++
+        r.results[media_reference_index].view_count ++
+        return { ...r, unread_count }
+      })
+    }
   }
 })()
-
-const search_query = {
-  subscribe: search_query_store.subscribe,
-
-  load_more_results: () => {},
-}
-
-let previous_state = { has_more_results: true, loading: false, results: [], cursor: null }
-const search_results = derived(
-  search_query,
-  async ($search_query, set) => {
-    set({ ...previous_state, loading: true })
-    const response = await client.media.search({
-      query: $search_query,
-      limit: 100,
-      cursor: previous_state.cursor,
-    })
-    const has_more_results = response.result.length
-    set({
-      results: previous_state.results.concat(response.result),
-      has_more_results,
-      loading: false,
-      cursor: response.cursor,
-    })
-  },
-  previous_state
-)
-
-async function load_thumbnails(search_query) {
-  const is_new_search_query = search_query !== thumbnail_query.query
-  if (is_new_search_query) {
-    has_more_thumbnails = true
-    delete thumbnail_query.cursor
-  }
-  if (has_more_thumbnails) {
-    loading_thumbnails = true
-    thumbnail_query = { ...thumbnail_query, query: search_query, limit: pagination_size }
-    let result
-    if (thumbnail_query.query) {
-      result = await client.media.search(thumbnail_query)
-    } else {
-      result = await client.media.list(thumbnail_query)
-    }
-    total_media_references = result.total
-    if (is_new_search_query) {
-      total_unviewed = 0
-      media_references = result.result
-    } else {
-      media_references = [...media_references, ...result.result]
-    }
-    total_unviewed += result.result.reduce(
-      (count, r) => (r.view_count === 0 ? count + 1 : count),
-      0
-    )
-    thumbnail_query.cursor = result.cursor
-    loading_thumbnails = false
-    has_more_thumbnails = Boolean(result.result.length)
-  }
-}
 
 export { search_query, search_results }

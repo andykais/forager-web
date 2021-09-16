@@ -4,27 +4,15 @@
   /* import TagSearch from './tags.svelte' */
   import TagSearch from './tags-ss.svelte'
   import StarsSearch from './stars.svelte'
+  import { search_query } from '../../stores/search'
 
-  let search_query = {}
-
-  export let on_submit
-  /* $: { */
-  /*   search_query = { stars: star_count, tag_ids: selected_tags.map(t => t.id) } */
-  /*   if (search_query.tag_ids.length === 0) delete search_query.tag_ids */
-  /*   if (search_query.stars === 0) delete search_query.stars */
-  /* } */
 
   function handle_tag_select(selected_tags) {
-  console.log('handle_tag_select')
-    // NOTE perf: if we need to speed things up we can store tag_ids client side
-    search_query = {...search_query, tags: selected_tags}
-    if (selected_tags.length === 0) delete search_query.tags
-    on_submit(search_query)
+    // NOTE(perf): if we need to speed things up we can store tag_ids client side
+    search_query.set_tags(selected_tags)
   }
   function handle_stars_select(star_count) {
-    search_query = {...search_query, stars: star_count}
-    if (star_count === 0) delete search_query.stars
-    on_submit(search_query)
+    search_query.set_stars(star_count)
   }
 </script>
 

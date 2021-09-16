@@ -8,6 +8,30 @@
   import Thumbnail from '../components/thumbnail.svelte'
   import MediaReferenceTags from '../components/media_reference.svelte'
   import { focus } from '../stores/focus'
+  import { search_results } from '../stores/search'
+
+  let show_video_preview_thumbnails = false
+  let show_media_file = false
+  let media_references = []
+  let current_media_index = 0
+  let current_media_reference_id
+  let current_media_reference
+  let current_tags
+  let current_media_file
+
+  $: current_media_reference_id = $search_results.results[current_media_index]?.id
+  $: media_references = $search_results.results
+
+  let loading_current_media_reference = true
+  $: {
+    if (current_media_reference_id !== undefined) on_change_media_reference(current_media_reference_id)
+  }
+  let media_reference_el
+  let thumbnail_grid_el
+
+  // NOTE that if the page is longer than the pagination size, we wont detect that we can load more thumbnails
+  let grid_width
+  let num_grid_columns = 0
 
   $: {
     // TODO we can probably move Escape into MediaFile and bind show_media_file (or use a store even)
@@ -17,75 +41,22 @@
     } else {
       keyboard_shortcuts.disable()
     }
-    console.log('Index', { $focus })
   }
 
-  let show_video_preview_thumbnails = false
-  let media_references = []
-  let total_media_references = 0
-  let show_media_file = false
-  let current_media_index = 0
-  $: current_media_reference_id = media_references[current_media_index]?.id
-  let current_media_reference
-  let current_tags
-  let current_media_file
-  let loading_current_media_reference = true
   $: {
-    if (current_media_reference_id !== undefined) on_change_media_reference(current_media_reference_id)
-  }
-  let media_reference_el
-  let thumbnail_grid_el
-
-  // NOTE that if the page is longer than the pagination size, we wont detect that we can load more thumbnails
-  let pagination_size = 20
-  let thumbnail_query = { limit: pagination_size }
-  let has_more_thumbnails = true
-  let loading_thumbnails = false
-  let grid_width
-  let num_grid_columns = 0
-  $: {
-    // we hardcode grid item width below
+    // we hardcode grid thumbnail width below (in the future  we'll add a slider for shrinking/growing it)
     if (grid_width) num_grid_columns = Math.floor(grid_width / (200 + 10))
   }
   let total_unviewed = 0
 
   onMount(async () => {
-    await load_thumbnails()
+    await search_results.load_more()
   })
 
-  async function load_thumbnails(search_query) {
-    const is_new_search_query = search_query !== thumbnail_query.query
-    if (is_new_search_query) {
-      has_more_thumbnails = true
-      delete thumbnail_query.cursor
-    }
-    if (has_more_thumbnails) {
-      loading_thumbnails = true
-      thumbnail_query = {...thumbnail_query, query: search_query, limit: pagination_size }
-      let result
-      if (thumbnail_query.query) {
-        result = await client.media.search(thumbnail_query)
-      } else {
-        result = await client.media.list(thumbnail_query)
-      }
-      total_media_references = result.total
-      if (is_new_search_query) {
-        total_unviewed = 0
-        media_references = result.result
-      } else {
-        media_references = [...media_references, ...result.result]
-      }
-      total_unviewed += result.result.reduce((count, r) => r.view_count === 0 ? count + 1 : count, 0)
-      thumbnail_query.cursor = result.cursor
-      loading_thumbnails = false
-      has_more_thumbnails = Boolean(result.result.length)
-    }
-  }
-
-  const handle_intersecting = (media_reference_id: number) => async () => {
+  async function on_intersect(media_reference_id: number) {
     const last_media_reference = media_references[media_references.length - 1]
     if (media_reference_id === last_media_reference.id) {
-      await load_thumbnails(thumbnail_query.query)
+      await search_results.load_more()
     }
   }
 
@@ -97,7 +68,8 @@
 
   async function open_media_file() {
     show_media_file = true
-    mark_view_media_file(current_media_reference_id)
+    await search_results.add_view(current_media_index)
+    /* mark_view_media_file(current_media_reference_id) */
   }
   async function on_change_media_reference(current_media_reference_id) {
     loading_current_media_reference = true
@@ -106,18 +78,14 @@
     current_media_file = data.media_file
     current_tags = data.tags
     loading_current_media_reference = false
-    if (show_media_file) mark_view_media_file(current_media_reference_id)
-  }
-  async function mark_view_media_file(current_media_reference_id) {
-    await client.media.add_view(current_media_reference_id)
-    if (media_references[current_media_index].view_count === 0) total_unviewed -= 1
-    media_references[current_media_index].view_count += 1
+    if (show_media_file) await search_results.add_view(current_media_index)
   }
 
   async function star_current_media(star_count) {
     await client.media.update(current_media_reference_id, { stars: star_count })
     media_references[current_media_index].stars = star_count
   }
+
   const keyboard_shortcuts = new KeyboardShortcuts({
     OpenMedia: (e) => {
       if (media_references.length && !show_media_file) open_media_file()
@@ -164,15 +132,10 @@
     ToggleViewTags: (e) => {},
     FocusSearch: (e) => {
       e.preventDefault()
-      console.log('focus search')
       focus.stack('search:tag:input')
     },
   })
-  async function handle_search(search_query) {
-  console.log('handle_search', search_query)
-    if (Object.keys(search_query).length > 0) await load_thumbnails(search_query)
-    else await load_thumbnails()
-  }
+
   function on_click_outside_media(e) {
     if (e.path[1] === this) {
       focus.reset('thumbnail_grid')
@@ -196,18 +159,18 @@
     </div>
   {/if}
   <div id="search-container">
-    <Search on_submit={handle_search} />
-    <h5 class="text-right">{total_unviewed} Unread Viewing ({current_media_index + 1}/{total_media_references}) </h5>
+    <Search />
+    <h5 class="text-right">{total_unviewed} Unread Viewing ({current_media_index + 1}/{$search_results.total}) </h5>
   </div>
 
   <div id="thumbnail-grid-outer" bind:this={thumbnail_grid_el} bind:clientWidth={grid_width} tabindex="0">
     <div id="thumbnail-grid">
-      {#each media_references as media_reference, media_index}
-        <IntersectionObserver focused={current_media_reference_id === media_reference.id} on:intersect={handle_intersecting(media_reference.id)}>
+      {#each media_references as media_reference, media_index (media_reference.id)}
+        <IntersectionObserver focused={current_media_reference_id === media_reference.id} on:intersect={() => on_intersect(media_reference.id)}>
           <Thumbnail {media_reference} stars={media_reference.stars} view_count={media_reference.view_count} show_video_preview={show_video_preview_thumbnails} on:click={handle_thumbnail_click(media_index)} focused={current_media_reference_id === media_reference.id}/>
         </IntersectionObserver>
       {/each}
-      {#if loading_thumbnails}
+      {#if $search_results.loading}
         LOADING...
       {/if}
     </div>
