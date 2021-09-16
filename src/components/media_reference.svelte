@@ -144,6 +144,7 @@ z-index: 101;
     display: flex;
     margin-bottom: 2px;
     justify-content: space-between;
+    align-items: center;
   }
   .tag-name {
     overflow-x: hidden;

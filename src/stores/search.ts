@@ -75,7 +75,7 @@ const search_results = (() => {
     api_params.cursor = data.cursor
     const has_more_results = data.result.length !== 0
     const unread_count = data.result.reduce((count, mr) => count + mr.view_count, 0)
-    console.log(data)
+    console.log({ data })
     if (refresh) {
       set({ loading: false, has_more_results, results: data.result, total: data.total, unread_count })
     } else {
@@ -104,17 +104,23 @@ const search_results = (() => {
       load_results(false)
     },
 
-    add_view: async (media_reference_index: number) => {
-      const media_reference = get(store).results[media_reference_index]
-      if (media_reference === undefined) throw new Error('attempted accessing non-existent index')
-      await client.media.add_view(media_reference.id)
+    update_index: (search_result_index: number, new_media_reference: MediaReferenceTR) => {
       store.update(r => {
         let unread_count = r.unread_count
-        if (media_reference.view_count === 0) unread_count ++
-        r.results[media_reference_index].view_count ++
+        const old_media_reference = r.results[search_result_index]
+        if (old_media_reference.view_count === 0 && new_media_reference.view_count > 0) unread_count++
+        r.results[search_result_index] = new_media_reference
         return { ...r, unread_count }
       })
-    }
+    },
+
+    // add_view: async (media_reference_index: number) => {
+    //   const media_reference = get(store).results[media_reference_index]
+    //   if (media_reference === undefined) throw new Error('attempted accessing non-existent index')
+    //   await client.media.add_view(media_reference.id)
+    //   store.update(r => {
+    //   })
+    // }
   }
 })()
 

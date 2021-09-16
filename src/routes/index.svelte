@@ -9,23 +9,19 @@
   import MediaReferenceTags from '../components/media_reference.svelte'
   import { focus } from '../stores/focus'
   import { search_results } from '../stores/search'
+  import { current } from '../stores/current'
 
   let show_video_preview_thumbnails = false
   let show_media_file = false
   let media_references = []
   let current_media_index = 0
-  let current_media_reference_id
-  let current_media_reference
-  let current_tags
-  let current_media_file
+  $: console.log({ show_media_file })
 
-  $: current_media_reference_id = $search_results.results[current_media_index]?.id
   $: media_references = $search_results.results
+  $: if ($search_results.results.length) current.set(current_media_index)
+  $: if (show_media_file && $current.loading === false) current.add_view()
 
   let loading_current_media_reference = true
-  $: {
-    if (current_media_reference_id !== undefined) on_change_media_reference(current_media_reference_id)
-  }
   let media_reference_el
   let thumbnail_grid_el
 
@@ -63,22 +59,7 @@
   const handle_thumbnail_click = (media_index) => () => {
     const prev_media_index = current_media_index
     current_media_index = media_index
-    if (prev_media_index === current_media_index) open_media_file()
-  }
-
-  async function open_media_file() {
-    show_media_file = true
-    await search_results.add_view(current_media_index)
-    /* mark_view_media_file(current_media_reference_id) */
-  }
-  async function on_change_media_reference(current_media_reference_id) {
-    loading_current_media_reference = true
-    const data = await client.media.get_file_info(current_media_reference_id)
-    current_media_reference = data.media_reference
-    current_media_file = data.media_file
-    current_tags = data.tags
-    loading_current_media_reference = false
-    if (show_media_file) await search_results.add_view(current_media_index)
+    if (prev_media_index === current_media_index) show_media_file = true
   }
 
   async function star_current_media(star_count) {
@@ -88,7 +69,7 @@
 
   const keyboard_shortcuts = new KeyboardShortcuts({
     OpenMedia: (e) => {
-      if (media_references.length && !show_media_file) open_media_file()
+      if (media_references.length && !show_media_file) show_media_file = true
     },
     Escape: (e) => {
       if ($focus === 'media_file') show_media_file = false
@@ -137,7 +118,9 @@
   })
 
   function on_click_outside_media(e) {
-    if (e.path[1] === this) {
+    // make sure that we only close the media when clicking on the surrounding div, not the image
+    // (theres probably a more robust solution here)
+    if (e.path[2] === this) {
       focus.reset('thumbnail_grid')
       show_media_file = false
     }
@@ -150,12 +133,12 @@
 <div class="container">
 
   <div id="toolbars-grid">
-    <MediaReferenceTags bind:this={media_reference_el} media_reference={media_references[current_media_index]} tags={current_tags} loading={loading_current_media_reference} />
+    <MediaReferenceTags bind:this={media_reference_el} media_reference={$current.media_reference} tags={$current.tags} loading={$current.loading} />
 
   <div id="search-plus-viewer">
   {#if show_media_file}
     <div class="media-file-container" on:click={on_click_outside_media}>
-      <MediaFile media_reference_id={current_media_reference_id} media_file={current_media_file} media_reference={current_media_reference} />
+      <MediaFile media_reference_id={$current.media_reference_id} media_file={$current.media_file} media_reference={$current.media_reference} />
     </div>
   {/if}
   <div id="search-container">
@@ -166,8 +149,8 @@
   <div id="thumbnail-grid-outer" bind:this={thumbnail_grid_el} bind:clientWidth={grid_width} tabindex="0">
     <div id="thumbnail-grid">
       {#each media_references as media_reference, media_index (media_reference.id)}
-        <IntersectionObserver focused={current_media_reference_id === media_reference.id} on:intersect={() => on_intersect(media_reference.id)}>
-          <Thumbnail {media_reference} stars={media_reference.stars} view_count={media_reference.view_count} show_video_preview={show_video_preview_thumbnails} on:click={handle_thumbnail_click(media_index)} focused={current_media_reference_id === media_reference.id}/>
+        <IntersectionObserver focused={$current.media_reference_id === media_reference.id} on:intersect={() => on_intersect(media_reference.id)}>
+          <Thumbnail {media_reference} stars={media_reference.stars} view_count={media_reference.view_count} show_video_preview={show_video_preview_thumbnails} on:click={handle_thumbnail_click(media_index)} focused={$current.media_reference_id === media_reference.id}/>
         </IntersectionObserver>
       {/each}
       {#if $search_results.loading}
