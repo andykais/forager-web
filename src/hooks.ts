@@ -5,6 +5,7 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 const { Forager } = require('forager')
 
+// TODO set up arg/env reading of config file
 const database_path = 'normal.db'
 // const database_path = '/home/andrew/Code/development/forager/normal.db'
 const forager: Forager = new Forager({ database_path, log_level: 'info' })
