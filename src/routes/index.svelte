@@ -21,7 +21,6 @@
   }
 
   let show_video_preview_thumbnails = false
-  let tags = []
   let media_references = []
   let total_media_references = 0
   let show_media_file = false
@@ -51,8 +50,6 @@
   let total_unviewed = 0
 
   onMount(async () => {
-    tags = await client.tag.list()
-    tags.sort((a, b) => a.group.localeCompare(b.group))
     await load_thumbnails()
   })
 

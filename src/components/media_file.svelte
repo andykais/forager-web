@@ -103,22 +103,25 @@
 
 <style>
   .container {
-    width: 100%;
-    height: 100%;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    padding: 10px;
     display: grid;
-    /* padding: 10px; */
     grid-template-rows: minmax(0, 1fr);
     justify-items: center;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.8);
   }
   .media-file-container {
-    display: flex;
-    justify-content: center;
     height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    justify-content: center;
+    align-items: center;
   }
   .media-file {
-    max-height: 100%;
     max-width: 100%;
+    max-height: 100%;
   }
 </style>

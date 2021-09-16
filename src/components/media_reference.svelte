@@ -77,17 +77,17 @@
               <button on:click={() => remove_tag(tag)}>X</button>
             {/each}
           </div>
-          <div id="new-tag">
-            <TagSearch
-              allow_multiple={false}
-              name="media_reference"
-              bind:input={new_tag_input}
-              on_submit={on_add_new_tags}
-            />
-            <button><h3>+</h3></button>
-          </div>
         </div>
       {/each}
+      <div id="new-tag">
+        <TagSearch
+          allow_multiple={false}
+          name="media_reference"
+          bind:input={new_tag_input}
+          on_submit={on_add_new_tags}
+        />
+        <button><h3>+</h3></button>
+      </div>
     </div>
     <div>
     </div>
@@ -133,7 +133,6 @@ z-index: 101;
     display: grid;
     grid-template-columns: 1fr auto auto auto;
     grid-gap: 5px;
-    margin-bottom: 5px;
   }
   .tag {
     box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.2);
@@ -151,6 +150,7 @@ z-index: 101;
     text-overflow: ellipsis;
   }
   #new-tag {
+    margin-top: 10px;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-gap: 5px;
