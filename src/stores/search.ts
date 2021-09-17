@@ -42,13 +42,14 @@ const search_query = (() => {
 type SearchApiParams = {query: SearchQuery; limit: number; cursor?: Date}
 const search_results = (() => {
   const api_params: SearchApiParams = { query: {}, cursor: null, limit: PAGINATION_SIZE }
-  const store = writable({
+  let store_data = {
     loading: false,
     has_more_results: true,
     results: [] as MediaReferenceTR[],
     total: 0,
     unread_count: 0,
-  })
+  }
+  const store = writable(store_data)
   const { subscribe, update, set } = store
 
   // NOTE this returns an unsubscribe method, but I have no idea where to put it.
@@ -64,8 +65,8 @@ const search_results = (() => {
 
 
   async function load_results(refresh: boolean) {
-    if (get(store).has_more_results === false) return
-    if (get(store).loading === true) throw new Error('queueing up/throttling multiple requests is unimplemented')
+    if (store_data.has_more_results === false) return
+    if (store_data.loading === true) throw new Error('queueing up/throttling multiple requests is unimplemented')
     if (refresh) api_params.cursor = null
     update((r) => ({ ...r, loading: true }))
     const is_empty_search_query = Object.keys(api_params.query).length === 0
@@ -75,18 +76,18 @@ const search_results = (() => {
     api_params.cursor = data.cursor
     const has_more_results = data.result.length !== 0
     const unread_count = data.result.reduce((count, mr) => count + mr.view_count, 0)
-    console.log({ data })
     if (refresh) {
-      set({ loading: false, has_more_results, results: data.result, total: data.total, unread_count })
+      store_data = { loading: false, has_more_results, results: data.result, total: data.total, unread_count }
     } else {
-      update(r => ({
+      store_data = {
         loading: false,
         has_more_results,
-        unread_count: r.unread_count + unread_count,
-        results: r.results.concat(data.result),
+        unread_count: store_data.unread_count + unread_count,
+        results: store_data.results.concat(data.result),
         total: data.total
-      }))
+      }
     }
+    set(store_data)
   }
 
   return {
@@ -100,27 +101,17 @@ const search_results = (() => {
     //   }
     // },
 
-    load_more: () => {
-      load_results(false)
+    load_more: async () => {
+      await load_results(false)
     },
 
     update_index: (search_result_index: number, new_media_reference: MediaReferenceTR) => {
-      store.update(r => {
-        let unread_count = r.unread_count
-        const old_media_reference = r.results[search_result_index]
-        if (old_media_reference.view_count === 0 && new_media_reference.view_count > 0) unread_count++
-        r.results[search_result_index] = new_media_reference
-        return { ...r, unread_count }
-      })
+      let unread_count = store_data.unread_count
+      const old_media_reference = store_data.results[search_result_index]
+      if (old_media_reference.view_count === 0 && new_media_reference.view_count > 0) unread_count++
+      store_data.results[search_result_index] = new_media_reference
+      set(store_data)
     },
-
-    // add_view: async (media_reference_index: number) => {
-    //   const media_reference = get(store).results[media_reference_index]
-    //   if (media_reference === undefined) throw new Error('attempted accessing non-existent index')
-    //   await client.media.add_view(media_reference.id)
-    //   store.update(r => {
-    //   })
-    // }
   }
 })()
 

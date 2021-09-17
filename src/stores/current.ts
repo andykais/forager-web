@@ -24,21 +24,18 @@ const current = (() => {
       set(initial_data())
     },
 
-    async set(search_result_index: number) {
-      const media_reference = get(search_results).results[search_result_index]
-      if (media_reference === undefined) throw new Error('attempted opening a non existent search result')
-      update(val => ({ ...val, loading: true, search_result_index, media_reference_id: media_reference.id }))
+    async set(search_result_index: number, media_reference_id: number) {
+      if (media_reference_id === undefined) throw new Error('attempted opening a non existent search result')
+      update(val => ({ ...val, loading: true, search_result_index, media_reference_id }))
       // TODO lets break this out into three separate derived stores.
       // We want media_file first so lets grab that first
-      const data = await client.media.get_file_info(media_reference.id)
-      set({ loading: false, search_result_index, media_reference_id: media_reference.id, ...data })
+      const data = await client.media.get_file_info(media_reference_id)
+      set({ loading: false, search_result_index, media_reference_id, ...data })
     },
     async add_view() {
-      console.log('add_view')
       const { media_reference_id, search_result_index, loading } = get(current)
       if (loading || media_reference_id === null) throw new Error('cannot mark a view while current element is loading')
       await client.media.add_view(media_reference_id)
-    console.log('update')
       update(val => {
         val.media_reference.view_count++
         return val
@@ -48,11 +45,5 @@ const current = (() => {
     }
   }
 })()
-
-// const current_media_reference = derived(current, async ({ media_reference_id }, set) => {
-//   set({ loading: true, value: null })
-//   const media_reference = await client.media.get_file_info(media_reference_id)
-//   set({ loading: false, value: media_reference })
-// }, { loading: false, value: null })
 
 export { current }

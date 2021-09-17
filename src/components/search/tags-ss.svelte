@@ -47,6 +47,9 @@
   }
   function on_blur_suggestion(e) {
     focus.pop(`${name}:tag:suggestion`)
+    if (e.relatedTarget?.className.split(' ').includes('suggestion') === false) {
+      search_results = []
+    }
   }
 
   function on_focus(e) {
@@ -54,6 +57,9 @@
   }
   function on_blur(e) {
     focus.pop(`${name}:tag:input`)
+    if (e.relatedTarget?.className.split(' ').includes('suggestion') === false) {
+      search_results = []
+    }
   }
 
   function handle_submit(e) {

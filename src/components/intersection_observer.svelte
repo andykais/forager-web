@@ -31,7 +31,6 @@
           if (_entry.target === element) {
             if  (_entry.isIntersecting) {
               state = 'intersecting'
-              console.log('intersect pls')
               dispatch('intersect', _entry)
             } else if (_entry.boundingClientRect.top > 0) {
               state = 'below'

@@ -15,11 +15,8 @@
   let show_media_file = false
   let media_references = []
   let current_media_index = 0
-  $: console.log({ show_media_file })
 
   $: media_references = $search_results.results
-  $: if ($search_results.results.length) current.set(current_media_index)
-  $: if (show_media_file && $current.loading === false) current.add_view()
 
   let loading_current_media_reference = true
   let media_reference_el
@@ -47,6 +44,7 @@
 
   onMount(async () => {
     await search_results.load_more()
+    await current.set(current_media_index, $search_results.results[current_media_index].id)
   })
 
   async function on_intersect(media_reference_id: number) {
@@ -60,6 +58,13 @@
     const prev_media_index = current_media_index
     current_media_index = media_index
     if (prev_media_index === current_media_index) show_media_file = true
+    on_media_index_change()
+  }
+
+  async function on_media_index_change() {
+    let expected_index = current_media_index
+    await current.set(current_media_index, $search_results.results[current_media_index].id)
+    if (current_media_index === expected_index && show_media_file) await current.add_view()
   }
 
   async function star_current_media(star_count) {
@@ -77,10 +82,12 @@
     NextMedia: (e) => {
       e.preventDefault()
       current_media_index = (current_media_index + 1) % media_references.length
+      on_media_index_change()
     },
     PrevMedia: (e) => {
       e.preventDefault()
       current_media_index = (media_references.length + (current_media_index - 1)) % media_references.length
+      on_media_index_change()
     },
     DownMedia: (e) => {
       e.preventDefault()
@@ -90,11 +97,13 @@
         else current_media_index = media_references.length - 1
       }
       else current_media_index = current_media_index + num_grid_columns
+      on_media_index_change()
     },
     UpMedia: (e) => {
       e.preventDefault()
       if (current_media_index - num_grid_columns < 0) current_media_index = media_references.length - 1
       else current_media_index = current_media_index - num_grid_columns
+      on_media_index_change()
     },
     ToggleVideoPreviewVsThumbails: (e) => {
       // TODO if we stop meshing grid keyboard shortcuts w/ media file shortcuts, we dont need  this if statement
