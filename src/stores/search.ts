@@ -34,8 +34,9 @@ const search_query = (() => {
     toggle_star_operator: () => {
       throw new Error('unimplemented')
     },
-    set_sort: (sort_by: string) => {
-      throw new Error('unimplemented')
+    set_sort: (sort: {sort_by: string; order: 'desc' | 'asc'}) => {
+      should_trigger_search = true
+      update(q => ({ ...q, ...sort }))
     },
     set_unread_filter: (on: boolean) => {
       should_trigger_search = true
@@ -126,6 +127,7 @@ const search_results = (() => {
 
     remove_index: (search_result_index: number) => {
       store_data.results.splice(search_result_index, 1)
+      store_data.total --
       set(store_data)
     }
   }

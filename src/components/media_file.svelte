@@ -78,7 +78,7 @@
         <img class="media-file" src="/api/media_file/{media_reference.id}" alt="media file" />
       {:else if media_file.media_type === 'VIDEO'}
         {#if show_video_preview}
-          <img class="media-file" src="/api/video_preview/{media_reference.id}" alt="media file video preview" />
+          <img class="media-file thumbnail" src="/api/video_preview/{media_reference.id}" alt="media file video preview" />
         {:else}
           <video
             bind:this={video_element}
@@ -123,5 +123,9 @@
   .media-file {
     max-width: 100%;
     max-height: 100%;
+  }
+  .thumbnail {
+    min-width: 100%;
+    min-height: 100%;
   }
 </style>

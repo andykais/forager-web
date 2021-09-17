@@ -18,12 +18,14 @@
   let should_load_current = false
   $: search_refreshed = $search_results.loading === false && $search_results.results.length > 0
   $: if (search_refreshed) on_search_refresh()
+  $: if ($search_query) current_media_index = 0
   function on_search_refresh() {
-    current_media_index = 0
+    /* current_media_index = 0 */
     current.set(current_media_index, $search_results.results[current_media_index].id)
   }
 
   $: media_references = $search_results.results
+$: console.log(media_references.map(r => r.id))
 
   let loading_current_media_reference = true
   let thumbnail_grid_el
@@ -56,6 +58,7 @@
   async function on_intersect(media_reference_id: number) {
     const last_media_reference = media_references[media_references.length - 1]
     if (media_reference_id === last_media_reference.id) {
+      console.log({ last_media_reference })
       await search_results.load_more()
     }
   }
@@ -74,7 +77,7 @@
   }
 
   async function star_current_media(star_count) {
-    await client.media.update(current_media_reference_id, { stars: star_count })
+    await client.media.update(media_references[current_media_index].id, { stars: star_count })
     media_references[current_media_index].stars = star_count
   }
 
@@ -89,24 +92,26 @@
     NextMedia: (e) => {
       e.preventDefault()
       if ($search_results.results.length === 0) return
-      if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) {
-        search_results.remove_index(current_media_index)
-        current_media_index --
-      }
+      // TODO not sure I love the "Unread Mode". It might be fine just as a regular search filter instead
+      /* if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) { */
+      /*   search_results.remove_index(current_media_index) */
+      /*   current_media_index -- */
+      /* } */
       current_media_index = (current_media_index + 1) % media_references.length
       on_media_index_change()
     },
     PrevMedia: (e) => {
       e.preventDefault()
       if ($search_results.results.length === 0) return
-      if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) search_results.remove_index(current_media_index)
+      /* if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) search_results.remove_index(current_media_index) */
       current_media_index = (media_references.length + (current_media_index - 1)) % media_references.length
       on_media_index_change()
     },
     DownMedia: (e) => {
       e.preventDefault()
       if ($search_results.results.length === 0) return
-      if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) search_results.remove_index(current_media_index)
+      if (show_media_file) return // we shouldnt allow up and down when the media is being viewed
+      /* if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) search_results.remove_index(current_media_index) */
       if (current_media_index + num_grid_columns >= media_references.length) {
         const is_last_row = media_references.length % num_grid_columns > current_media_index % num_grid_columns
         if (is_last_row) current_media_index = 0
@@ -118,7 +123,8 @@
     UpMedia: (e) => {
       e.preventDefault()
       if ($search_results.results.length === 0) return
-      if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) search_results.remove_index(current_media_index)
+      if (show_media_file) return // we shouldnt allow up and down when the media is being viewed
+      /* if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) search_results.remove_index(current_media_index) */
       if (current_media_index - num_grid_columns < 0) current_media_index = media_references.length - 1
       else current_media_index = current_media_index - num_grid_columns
       on_media_index_change()
@@ -176,9 +182,12 @@
   <div id="thumbnail-grid-outer" bind:this={thumbnail_grid_el} bind:clientWidth={grid_width} tabindex="0">
     <div id="thumbnail-grid">
       {#each media_references as media_reference, media_index (media_reference.id)}
+        <div>
         <IntersectionObserver focused={$current.media_reference_id === media_reference.id} on:intersect={() => on_intersect(media_reference.id)}>
           <Thumbnail {media_reference} stars={media_reference.stars} view_count={media_reference.view_count} show_video_preview={show_video_preview_thumbnails} on:click={handle_thumbnail_click(media_index)} focused={$current.media_reference_id === media_reference.id}/>
         </IntersectionObserver>
+        {media_reference.id}
+        </div>
       {/each}
       {#if $search_results.loading}
         LOADING...

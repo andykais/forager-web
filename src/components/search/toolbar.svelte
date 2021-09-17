@@ -5,6 +5,7 @@
   import TagSearch from './tags-ss.svelte'
   import StarsSearch from './stars.svelte'
   import UnreadSearch from './unread.svelte'
+  import SortSearch from './sort.svelte'
   import { search_query } from '../../stores/search'
 
 
@@ -18,6 +19,9 @@
   function handle_unread_toggle(toggle) {
     search_query.set_unread_filter(toggle)
   }
+  function handle_sort_select(sort) {
+    search_query.set_sort(sort)
+  }
 </script>
 
 <div class="container">
@@ -30,15 +34,7 @@
 
   <UnreadSearch on_submit={handle_unread_toggle} />
 
-  <div>
-    <h4>Sort</h4>
-    <select id="sort" name="sort">
-      <option value="Added On">Added On</option>
-      <option value="Created At">Created At</option>
-      <option value="Modified On">Modified On</option>
-    </select>
-    <span>↑ ↓</span>
-  </div>
+  <SortSearch on_submit={handle_sort_select} />
 </div>
 
 <style>

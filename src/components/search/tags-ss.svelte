@@ -25,7 +25,7 @@
   async function on_input(e) {
     // FWIW this wont handle a user editing a tag further back
     // we could do something more complicated like check the diff location between old input & new input
-    const input_tags = parse_input(input)
+    const input_tags = parse_input(input, null)
     const selected_tags = input_tags.slice(0, -1)
     const current_input = input_tags.at(-1)
     if(!throttled) {
@@ -67,11 +67,11 @@
     on_submit(parse_input(input))
   }
 
-  function parse_input(input) {
+  function parse_input(input, group_default = '') {
     return input.split(/ +/)
       .filter(str => str.length)
       .map(str => {
-        let group = ''
+        let group = group_default
         let name = str
         if (str.includes(':')) [group, name] = str.split(':')
         return { group, name }
