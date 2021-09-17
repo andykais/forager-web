@@ -32,6 +32,10 @@
   let media_element
   let video_element
   let show_video_preview = false
+  $: {
+    if ($focus.startsWith('media_file')) keyboard_shortcuts.enable()
+    else keyboard_shortcuts.disable()
+  }
 
   function open_fullscreen(element) {
     if (element.requestFullscreen) {
