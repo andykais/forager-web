@@ -15,7 +15,6 @@ const focus = {
   subscribe: focus_derived.subscribe,
   stack: (focus: Focus) => {
     focus_stack.update(old_stack => {
-      console.log({ old_stack })
       const focus_in_stack = old_stack.indexOf(focus)
       // ensure we dont double stack the same focus
       if(focus_in_stack !== -1) return old_stack.slice(0, focus_in_stack + 1)

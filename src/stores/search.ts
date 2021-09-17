@@ -6,18 +6,22 @@ const PAGINATION_SIZE = 20
 
 type TagIdentifier = { name: string; group?: string }
 type SearchQuery = { tag?: TagIdentifier[]; stars?: number }
+let should_trigger_search = false
 const search_query = (() => {
   const { set, update, subscribe } = writable({} as SearchQuery)
 
   return {
     subscribe,
     set: (query: SearchQuery) => {
+      should_trigger_search = true
       set(query)
     },
     set_tags: (tags: TagIdentifier[]) => {
+      should_trigger_search = true
       update(q => ({ ...q, tags }))
     },
     set_stars: (stars?: number) => {
+      should_trigger_search = true
       update(q => {
         // TODO when we add `toggle_star_operator`, we should make this function better
         if (stars === 0) {
@@ -33,8 +37,15 @@ const search_query = (() => {
     set_sort: (sort_by: string) => {
       throw new Error('unimplemented')
     },
-    toggle_unread_filter: () => {
-      throw new Error('unimplemented')
+    set_unread_filter: (on: boolean) => {
+      should_trigger_search = true
+      update(q => {
+        if (on) return { ...q, unread: true }
+        else {
+          delete q.unread
+          return q
+        }
+      })
     },
   }
 })()
@@ -54,18 +65,18 @@ const search_results = (() => {
 
   // NOTE this returns an unsubscribe method, but I have no idea where to put it.
   // Thats technically a memory leak but its small enough that we shouldnt care
-  let initial_event = true
   const unsubscribe_search_query = search_query.subscribe(query => {
-    if (!initial_event) {
+    // were tracking when search is affected because the first subscription seems to fuck up maybe on the
+    // server, and just an initial var seems to get reset on the client
+    if (should_trigger_search) {
       api_params.query = query
       load_results(true)
     }
-    initial_event = false
   })
 
 
   async function load_results(refresh: boolean) {
-    if (store_data.has_more_results === false) return
+    if (refresh === false && store_data.has_more_results === false) return
     if (store_data.loading === true) throw new Error('queueing up/throttling multiple requests is unimplemented')
     if (refresh) api_params.cursor = null
     update((r) => ({ ...r, loading: true }))
@@ -112,6 +123,11 @@ const search_results = (() => {
       store_data.results[search_result_index] = new_media_reference
       set(store_data)
     },
+
+    remove_index: (search_result_index: number) => {
+      store_data.results.splice(search_result_index, 1)
+      set(store_data)
+    }
   }
 })()
 

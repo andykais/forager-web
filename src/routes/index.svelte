@@ -8,18 +8,24 @@
   import Thumbnail from '../components/thumbnail.svelte'
   import MediaReferenceTags from '../components/media_reference.svelte'
   import { focus } from '../stores/focus'
-  import { search_results } from '../stores/search'
+  import { search_query, search_results } from '../stores/search'
   import { current } from '../stores/current'
 
   let show_video_preview_thumbnails = false
   let show_media_file = false
   let media_references = []
   let current_media_index = 0
+  let should_load_current = false
+  $: search_refreshed = $search_results.loading === false && $search_results.results.length > 0
+  $: if (search_refreshed) on_search_refresh()
+  function on_search_refresh() {
+    current_media_index = 0
+    current.set(current_media_index, $search_results.results[current_media_index].id)
+  }
 
   $: media_references = $search_results.results
 
   let loading_current_media_reference = true
-  let media_reference_el
   let thumbnail_grid_el
 
   // NOTE that if the page is longer than the pagination size, we wont detect that we can load more thumbnails
@@ -75,22 +81,32 @@
   const keyboard_shortcuts = new KeyboardShortcuts({
     OpenMedia: (e) => {
       if (media_references.length && !show_media_file) show_media_file = true
+      on_media_index_change()
     },
     Escape: (e) => {
       if ($focus === 'media_file') show_media_file = false
     },
     NextMedia: (e) => {
       e.preventDefault()
+      if ($search_results.results.length === 0) return
+      if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) {
+        search_results.remove_index(current_media_index)
+        current_media_index --
+      }
       current_media_index = (current_media_index + 1) % media_references.length
       on_media_index_change()
     },
     PrevMedia: (e) => {
       e.preventDefault()
+      if ($search_results.results.length === 0) return
+      if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) search_results.remove_index(current_media_index)
       current_media_index = (media_references.length + (current_media_index - 1)) % media_references.length
       on_media_index_change()
     },
     DownMedia: (e) => {
       e.preventDefault()
+      if ($search_results.results.length === 0) return
+      if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) search_results.remove_index(current_media_index)
       if (current_media_index + num_grid_columns >= media_references.length) {
         const is_last_row = media_references.length % num_grid_columns > current_media_index % num_grid_columns
         if (is_last_row) current_media_index = 0
@@ -101,6 +117,8 @@
     },
     UpMedia: (e) => {
       e.preventDefault()
+      if ($search_results.results.length === 0) return
+      if ($search_query.unread && $search_results.results[current_media_index].view_count > 0) search_results.remove_index(current_media_index)
       if (current_media_index - num_grid_columns < 0) current_media_index = media_references.length - 1
       else current_media_index = current_media_index - num_grid_columns
       on_media_index_change()
@@ -142,7 +160,7 @@
 <div class="container">
 
   <div id="toolbars-grid">
-    <MediaReferenceTags bind:this={media_reference_el} media_reference={$current.media_reference} tags={$current.tags} loading={$current.loading} />
+    <MediaReferenceTags media_reference={$current.media_reference} tags={$current.tags} loading={$current.loading} />
 
   <div id="search-plus-viewer">
   {#if show_media_file}

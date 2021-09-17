@@ -4,6 +4,7 @@
   /* import TagSearch from './tags.svelte' */
   import TagSearch from './tags-ss.svelte'
   import StarsSearch from './stars.svelte'
+  import UnreadSearch from './unread.svelte'
   import { search_query } from '../../stores/search'
 
 
@@ -14,6 +15,9 @@
   function handle_stars_select(star_count) {
     search_query.set_stars(star_count)
   }
+  function handle_unread_toggle(toggle) {
+    search_query.set_unread_filter(toggle)
+  }
 </script>
 
 <div class="container">
@@ -23,6 +27,8 @@
   </div>
 
   <StarsSearch on_submit={handle_stars_select}/>
+
+  <UnreadSearch on_submit={handle_unread_toggle} />
 
   <div>
     <h4>Sort</h4>
@@ -38,7 +44,7 @@
 <style>
   .container {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr auto auto auto;
     grid-gap: 20px;
   }
 </style>
