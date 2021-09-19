@@ -5,8 +5,8 @@
 
   export let name
   export let on_submit
+  export let input = ''
 
-  let input = ''
   let input_element
   let current_suggestion_index = null
   let suggestions_elements = []
