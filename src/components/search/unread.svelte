@@ -12,6 +12,6 @@
 </script>
 
 <div>
-  <h4>Unread Mode</h4>
+  <h4>Unread</h4>
   <input checked={unread_only} on:input={handle_input} type="checkbox" />
 </div>

@@ -10,7 +10,7 @@ const actions = {
   UpMedia: 'ArrowUp',
   FocusSearch: 'Slash',
   FocusNewTag: 'Ctrl-KeyM',
-  ToggleFitMedia: null,
+  ToggleFitMedia: 'Ctrl-Space',
   ToggleFullScreen: 'KeyF',
   PlayPauseMedia: 'Space',
   ToggleVideoPreviewVsThumbails: 'KeyT',
@@ -24,6 +24,11 @@ const actions = {
   ToggleViewTags: null,
 } as const
 
+const custom_user_actions: Record<keyof typeof actions, string> = {
+ NextMedia: 'KeyX', // TODO create config file w/ custom key bindings (like "X")
+ PrevMedia: 'Ctrl-KeyX',
+}
+
 type KeyboardAction = keyof typeof actions
 
 const keycode_actions: Record<null | string, KeyboardAction> = Object.keys(actions).reduce(
@@ -35,6 +40,10 @@ const keycode_actions: Record<null | string, KeyboardAction> = Object.keys(actio
   },
   {}
 )
+for (const [action, custom_keycode] of Object.entries(custom_user_actions)) {
+  if (keycode_actions[custom_keycode]) keycode_actions[custom_keycode].push(action)
+  else keycode_actions[custom_keycode] = [action]
+}
 
 class KeyboardShortcuts {
   private disabled = false

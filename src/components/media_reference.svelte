@@ -58,7 +58,7 @@
       </div>
       <div class="crud-input">
         <label for="metadata">Description</label>
-        <input id="metadata" type="text" value={media_reference?.metadata} />
+        <input id="metadata" type="text" value={JSON.stringify(media_reference?.metadata)} />
       </div>
     </div>
     <div id="tags" style="width: {sidebar_width}px">

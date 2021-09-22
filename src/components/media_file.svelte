@@ -27,14 +27,38 @@
   export let media_reference_id
   export let media_reference
   export let media_file
+  export let on_next_media
+  export let on_prev_media
+  export let on_close_media
+  export let on_star_media
+
+  $: console.log('MediaFile', $focus)
 
   let media_container
   let media_element
   let video_element
   let show_video_preview = false
+  let fit_media = false
+  let media_dimensions = ''
   $: {
     if ($focus.startsWith('media_file')) keyboard_shortcuts.enable()
     else keyboard_shortcuts.disable()
+  }
+
+  $: {
+    if (fit_media) {
+      media_dimensions = `width: 100%; min-height: 100%`
+    } else {
+      media_dimensions = `min-width: ${media_file.width}; min-height: ${media_file.height}`
+    }
+  }
+
+  function style_media_dimensions() {
+    if (fit_media) {
+    } else {
+      return 
+    }
+
   }
 
   function open_fullscreen(element) {
@@ -61,12 +85,37 @@
         else open_fullscreen(media_element)
       }
     },
+    Escape: (e) => {
+      // TODO we can fix this by adding state like "already_captured" to the handlers. We just need to own the whole listener loop
+      e.preventDefault()
+      console.log('MediaFile Escape triggered')
+      if ($focus === 'media_file') on_close_media()
+    },
+    NextMedia: (e) => {
+      e.preventDefault()
+      on_next_media()
+    },
+    PrevMedia: (e) => {
+      e.preventDefault()
+      on_prev_media()
+    },
+    Star0: (e) => on_star_media(0),
+    Star1: (e) => on_star_media(1),
+    Star2: (e) => on_star_media(2),
+    Star3: (e) => on_star_media(3),
+    Star4: (e) => on_star_media(4),
+    Star5: (e) => on_star_media(5),
     PlayPauseMedia: (e) => {
       e.preventDefault()
       if (media_file.media_type === 'VIDEO') {
         if (video_element.paused) video_element.play()
         else video_element.pause()
       }
+    },
+    ToggleFitMedia: (e) => {
+      e.preventDefault()
+      console.log('ToggleFitMedia')
+      fit_media = !fit_media
     },
     ToggleVideoPreviewVsThumbails: (e) => {
       e.preventDefault()
@@ -82,11 +131,11 @@
         <img class="media-file" src="/api/media_file/{media_reference.id}" alt="media file" />
       {:else if media_file.media_type === 'VIDEO'}
         {#if show_video_preview}
-          <img class="media-file thumbnail" src="/api/video_preview/{media_reference.id}" alt="media file video preview" />
+          <img class="media-file thumbnail" class:fit-width={fit_media} src="/api/video_preview/{media_reference.id}" alt="media file video preview" />
         {:else}
           <video
             bind:this={video_element}
-            style="min-width: {media_file.width}; min-height: {media_file.height}"
+            style="{media_dimensions}"
             class="media-file"
             src="/api/media_file/{media_reference_id}"
             type="video/mp4"
@@ -128,7 +177,7 @@
     max-width: 100%;
     max-height: 100%;
   }
-  .thumbnail {
+  .fit-width {
     min-width: 100%;
     min-height: 100%;
   }

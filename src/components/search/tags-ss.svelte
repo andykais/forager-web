@@ -87,6 +87,7 @@
       e.preventDefault()
       search_results = []
       input_element.blur()
+      return true
     },
     // NOTE we could add another handler in KeyboardShortcuts for PrevSuggestion, NextSuggestion. Its redundant though
     NextTagSuggestion: (e) => {
