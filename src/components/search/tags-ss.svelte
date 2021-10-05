@@ -95,6 +95,7 @@
       if(suggestions_elements.length === 0) return
       if(current_suggestion_index === null) current_suggestion_index = 0
       else current_suggestion_index = (current_suggestion_index + 1) % suggestions_elements.length
+      console.log({ suggestions_elements, current_suggestion_index, length: suggestions_elements.length })
       suggestions_elements[current_suggestion_index].focus()
     },
     PrevTagSuggestion: (e) => {

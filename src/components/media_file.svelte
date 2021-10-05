@@ -53,14 +53,6 @@
     }
   }
 
-  function style_media_dimensions() {
-    if (fit_media) {
-    } else {
-      return 
-    }
-
-  }
-
   function open_fullscreen(element) {
     if (element.requestFullscreen) {
       element.requestFullscreen()
@@ -114,8 +106,8 @@
     },
     ToggleFitMedia: (e) => {
       e.preventDefault()
-      console.log('ToggleFitMedia')
       fit_media = !fit_media
+      console.log('ToggleFitMedia', fit_media)
     },
     ToggleVideoPreviewVsThumbails: (e) => {
       e.preventDefault()
@@ -128,7 +120,7 @@
   {#if media_file}
     <div class="media-file-container" bind:this={media_element}>
       {#if media_file.media_type === 'IMAGE'}
-        <img class="media-file" src="/api/media_file/{media_reference.id}" alt="media file" />
+        <img class="media-file" class:fit-width={fit_media} src="/api/media_file/{media_reference.id}" alt="media file" />
       {:else if media_file.media_type === 'VIDEO'}
         {#if show_video_preview}
           <img class="media-file thumbnail" class:fit-width={fit_media} src="/api/video_preview/{media_reference.id}" alt="media file video preview" />

@@ -26,8 +26,8 @@ class ForagerApiServer {
       await forager.media.add_view(query_data)
     },
 
-    get_file_info: async (query_data) => {
-      const data = forager.media.get_file_info(query_data)
+    get_reference: async (query_data) => {
+      const data = forager.media.get_reference(query_data)
       return data
     },
     list: forager.media.list,

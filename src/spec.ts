@@ -8,7 +8,7 @@ type ForagerSpec = {
     list: Forager['media']['list']
     update: Forager['media']['update']
     add_view: Forager['media']['add_view']
-    get_file_info: Forager['media']['get_file_info']
+    get_reference: Forager['media']['get_reference']
   }
   tag: {
     list: Forager['tag']['list']

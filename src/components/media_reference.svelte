@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as date_fns from 'date-fns'
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
   import { client } from '../client'
   import TagSearch from './search/tags-ss.svelte'
@@ -12,6 +13,11 @@
   let tag_group_map = {}
   let tag_groups = []
   let sidebar_width
+  let source_created_ago
+
+  $: source_created_ago = media_reference?.source_created_at
+    ? `Created ${date_fns.formatDistanceToNow(new Date(media_reference.source_created_at))} ago`
+    : 'Unknown create date'
 
   $: {
     tag_group_map = tags.reduce((acc, tag) => {
@@ -59,6 +65,12 @@
       <div class="crud-input">
         <label for="metadata">Description</label>
         <input id="metadata" type="text" value={JSON.stringify(media_reference?.metadata)} />
+      </div>
+      <div>
+        <span>{source_created_ago}</span>
+      </div>
+      <div>
+        <span>Stars: {media_reference?.stars}</span>
       </div>
     </div>
     <div id="tags" style="width: {sidebar_width}px">

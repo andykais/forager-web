@@ -51,6 +51,7 @@
     if (grid_width) num_grid_columns = Math.floor(grid_width / (200 + 10))
   }
   let total_unviewed = 0
+  $: total_unviewed = $search_results.unread_count
 
   onMount(async () => {
     await search_results.load_more()
@@ -79,8 +80,10 @@
   }
 
   async function on_star_media(star_count) {
-    await client.media.update(media_references[current_media_index].id, { stars: star_count })
-    media_references[current_media_index].stars = star_count
+    await current.star(star_count)
+    /* await client.media.update(media_references[current_media_index].id, { stars: star_count }) */
+    /* media_references[current_media_index].stars = star_count */
+    /* $current.media_reference.star = star_count */
   }
 
   function on_next_media() {
@@ -209,7 +212,9 @@
         <IntersectionObserver focused={$current.media_reference_id === media_reference.id} on:intersect={() => on_intersect(media_reference.id)}>
           <Thumbnail {media_reference} stars={media_reference.stars} view_count={media_reference.view_count} show_video_preview={show_video_preview_thumbnails} on:click={handle_thumbnail_click(media_index)} focused={$current.media_reference_id === media_reference.id}/>
         </IntersectionObserver>
+        <!--
         {media_reference.id}
+        -->
         </div>
       {/each}
       {#if $search_results.loading}

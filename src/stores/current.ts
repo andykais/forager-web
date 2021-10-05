@@ -29,7 +29,7 @@ const current = (() => {
       update(val => ({ ...val, loading: true, search_result_index, media_reference_id }))
       // TODO lets break this out into three separate derived stores.
       // We want media_file first so lets grab that first
-      const data = await client.media.get_file_info(media_reference_id)
+      const data = await client.media.get_reference(media_reference_id)
       set({ loading: false, search_result_index, media_reference_id, ...data })
     },
     async add_view() {
@@ -38,6 +38,17 @@ const current = (() => {
       await client.media.add_view(media_reference_id)
       update(val => {
         val.media_reference.view_count++
+        return val
+      })
+      const { media_reference } = get(current)
+      search_results.update_index(search_result_index, media_reference)
+    },
+    async star(star_count: number) {
+      const { media_reference_id, search_result_index, loading } = get(current)
+      if (loading || media_reference_id === null) throw new Error('cannot mark a view while current element is loading')
+      await client.media.update(media_reference_id, { stars: star_count })
+      update(val => {
+        val.media_reference.stars = star_count
         return val
       })
       const { media_reference } = get(current)
