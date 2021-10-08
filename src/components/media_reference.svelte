@@ -44,7 +44,7 @@
   const keyboard_shortcuts = new KeyboardShortcuts({
     FocusNewTag: (e) => {
       e.preventDefault()
-      focus.stack('media_reference:tag')
+      focus.stack('media_reference:tag:input')
     }
   })
 </script>
