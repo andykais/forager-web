@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
+  import { decode_search_query } from '../../stores/search'
   import { focus } from '../../stores/focus'
 
   export let on_submit
@@ -6,6 +8,13 @@
   const stars_indexes = Array(5).fill(0).map((_, i) => i + 1)
   let stars = 0
   let hovered_index = 0
+
+  onMount(() => {
+    const params = {}
+    new URLSearchParams(window.location.search).forEach((v,k) => params[k] = v)
+    const search_query_params = decode_search_query(params)
+    if (search_query_params['stars']) stars = search_query_params['stars']
+  })
 
   function on_star_select(index) {
     if (stars === index) stars = 0

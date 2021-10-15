@@ -2,6 +2,7 @@
   import * as date_fns from 'date-fns'
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
   import { client } from '../client'
+  import { encode_tag } from '../util'
   import TagSearch from './search/tags-ss.svelte'
   import { focus } from '../stores/focus'
   import { current } from '../stores/current'
@@ -44,6 +45,10 @@
   async function remove_tag(remove_tag) {
     const { name, group } = remove_tag
     tags = await client.tag.remove_tags(media_reference.id, [{ name, group }])
+  }
+  function copy_tag(tag) {
+    console.log(encode_tag(tag))
+    navigator.clipboard.writeText(encode_tag(tag))
   }
   const keyboard_shortcuts = new KeyboardShortcuts({
     FocusNewTag: (e) => {
@@ -88,8 +93,8 @@
                 <span>{tag.media_reference_count}</span>
               </button>
               <!-- TODO on hover show these buttons -->
-              <button class="flip-text" on:click={() => remove_tag(tag)}>✎</button>
-              <button on:click={() => remove_tag(tag)}>📋</button>
+              <button class="flip-text" on:click={() => edit_tag(tag)}>✎</button>
+              <button on:click={() => copy_tag(tag)}>📋</button>
               <button on:click={() => remove_tag(tag)}>X</button>
             {/each}
           </div>

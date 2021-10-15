@@ -2,6 +2,7 @@
   import { client } from '../../client'
   import { KeyboardShortcuts } from '../../keyboard-shortcuts'
   import { focus } from '../../stores/focus'
+  import { decode_tag } from '../../util'
 
   export let name
   export let on_submit
@@ -70,12 +71,7 @@
   function parse_input(input, group_default = '') {
     return input.split(/ +/)
       .filter(str => str.length)
-      .map(str => {
-        let group = group_default
-        let name = str
-        if (str.includes(':')) [group, name] = str.split(':')
-        return { group, name }
-      })
+      .map(decode_tag)
   }
   function render_display_name({ group, name }) {
     if (group) return `${group}:${name}`

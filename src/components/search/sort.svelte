@@ -1,9 +1,19 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
+  import { decode_search_query } from '../../stores/search'
 
   export let on_submit
 
   let sort_by = 'created_at'
   let sort_desc = true
+
+  onMount(() => {
+    const params = {}
+    new URLSearchParams(window.location.search).forEach((v,k) => params[k] = v)
+    const search_query_params = decode_search_query(params)
+    if (search_query_params['sort_by']) sort_by = search_query_params['sort_by']
+    if (search_query_params['order']) sort_desc = search_query_params['order'] === 'desc'
+  })
 
   function handle_select(e) {
     sort_by = e.target.value

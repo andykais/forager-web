@@ -9,6 +9,7 @@
   import { search_query, decode_search_query } from '../../stores/search'
 
   let tag_input = ''
+
   onMount(() => {
     const params = {}
     new URLSearchParams(window.location.search).forEach((v,k) => params[k] = v)
