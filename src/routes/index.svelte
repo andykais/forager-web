@@ -8,7 +8,7 @@
   import Thumbnail from '../components/thumbnail.svelte'
   import MediaReferenceTags from '../components/media_reference.svelte'
   import { focus } from '../stores/focus'
-  import { search_query, search_results } from '../stores/search'
+  import { search_query, search_results, encode_search_query, decode_search_query } from '../stores/search'
   import { current } from '../stores/current'
 
   let show_video_preview_thumbnails = false
@@ -16,6 +16,7 @@
   let media_references = []
   let current_media_index = 0
   let should_load_current = false
+  let mounted = false
   $: search_refreshed = $search_results.loading === false && $search_results.results.length > 0
   $: if (search_refreshed) on_search_refresh()
   $: if ($search_query) current_media_index = 0
@@ -53,9 +54,32 @@
   let total_unviewed = 0
   $: total_unviewed = $search_results.unread_count
 
+  $: {
+    if (mounted) {
+      const encoded_search_query = encode_search_query($search_query)
+      console.log({ encoded_search_query  })
+      const entries = Object.entries(encoded_search_query)
+      entries.sort((a,b) => a[0].localeCompare(b[0]))
+      const params = entries.map(([k,v]) => `${k}=${v}`).join('&')
+      /* const params = new URLSearchParams(encoded_search_query) */ // the builtin escapes colons (properly), which is harder to read
+      if (Object.keys(params).length) {
+        window.history.pushState('', '', '?' + params.toString())
+      } else {
+        console.log('push nothing')
+        window.history.pushState('', '', window.location.pathname)
+      }
+    }
+  }
+
   onMount(async () => {
-    await search_results.load_more()
-    await current.set(current_media_index, $search_results.results[current_media_index].id)
+    mounted = true
+    const params = {}
+    new URLSearchParams(window.location.search).forEach((v,k) => params[k] = v)
+    const search_query_params = decode_search_query(params)
+    console.log({ search_query_params })
+    search_query.set(search_query_params)
+    /* await search_results.load_more() */
+    /* await current.set(current_media_index, $search_results.results[current_media_index].id) */
   })
 
   async function on_intersect(media_reference_id: number) {

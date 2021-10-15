@@ -2,10 +2,68 @@ import { get, writable, derived } from 'svelte/store'
 import { client } from '../client'
 import type { MediaReferenceTR } from 'forager/models/media_reference'
 
+type EncodedSearchQuery = {[key: string]: string}
+export function encode_search_query(search_query: SearchQuery): EncodedSearchQuery {
+  const encoded: EncodedSearchQuery = {}
+  for (const [key, value] of Object.entries(search_query)) {
+    switch(key) {
+      case 'tags':
+        if (value.length) encoded[key] = value.map(v => `${v.group}:${v.name}`).join(',')
+        break
+      case 'stars':
+        encoded[key] = value
+        break
+      case 'unread':
+        encoded[key] = value ? 'true' : 'false'
+        break
+      case 'sort_by':
+        encoded[key] = value
+        break
+      case 'order':
+        encoded[key] = value
+        break
+      default:
+        throw new Error(`unknown search query param '${key}' ${JSON.stringify(value)}`)
+    }
+  }
+  return encoded
+}
+
+export function decode_search_query(search_query_object: EncodedSearchQuery): SearchQuery {
+  const decoded: SearchQuery = {}
+  for (const [key, value] of Object.entries(search_query_object)) {
+    switch(key) {
+      case 'tags':
+        decoded.tags = value.split(',').map(tag_str => {
+          const parsed = value.split(':')
+          const group = parsed.length ? parsed[0] : ''
+          const name = parsed.length ? parsed[1] : parsed[0]
+          return { group, name }
+        })
+        break
+      case 'stars':
+        decoded[key] = parseInt(value)
+        break
+      case 'unread':
+        decoded[key] = value === 'true' ? true : false
+        break
+      case 'sort_by':
+        decoded[key] = value
+        break
+      case 'order':
+        decoded[key] = value
+        break
+      default:
+        throw new Error(`unknown search query param '${key}'`)
+    }
+  }
+  return decoded
+}
+
 const PAGINATION_SIZE = 20
 
 type TagIdentifier = { name: string; group?: string }
-type SearchQuery = { tag?: TagIdentifier[]; stars?: number }
+type SearchQuery = { tags?: TagIdentifier[]; stars?: number }
 let should_trigger_search = false
 const search_query = (() => {
   const { set, update, subscribe } = writable({} as SearchQuery)

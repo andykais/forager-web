@@ -14,6 +14,7 @@ const actions = {
   ToggleFullScreen: 'KeyF',
   PlayPauseMedia: 'Space',
   ToggleVideoPreviewVsThumbails: 'KeyT',
+  ToggleVideoMute: 'KeyM',
 
   Star0: 'Digit0',
   Star1: 'Digit1',

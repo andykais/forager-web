@@ -4,6 +4,7 @@
   import { client } from '../client'
   import TagSearch from './search/tags-ss.svelte'
   import { focus } from '../stores/focus'
+  import { current } from '../stores/current'
 
   export let loading = false
   export let tags = []
@@ -34,6 +35,9 @@
   }
 
   async function on_add_new_tags(add_tag) {
+    // TODO make this a configuration option like set_star_1_on_tag_edit
+    if (media_reference.stars === 0) await current.star(1)
+
     tags = await client.tag.add_tags(media_reference.id, add_tag)
     new_tag_input = ''
   }

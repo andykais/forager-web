@@ -6,7 +6,15 @@
   import StarsSearch from './stars.svelte'
   import UnreadSearch from './unread.svelte'
   import SortSearch from './sort.svelte'
-  import { search_query } from '../../stores/search'
+  import { search_query, decode_search_query } from '../../stores/search'
+
+  let tag_input = ''
+  onMount(() => {
+    const params = {}
+    new URLSearchParams(window.location.search).forEach((v,k) => params[k] = v)
+    const search_query_params = decode_search_query(params)
+    if (search_query_params['tags']) tag_input = search_query_params['tags'].map(t => `${t.group}:${t.name}`).join(' ')
+  })
 
 
   function handle_tag_select(selected_tags) {
@@ -27,7 +35,7 @@
 <div class="container">
   <div>
     <h4>Tags</h4>
-    <TagSearch name="search" on_submit={handle_tag_select} />
+    <TagSearch name="search" bind:input={tag_input} on_submit={handle_tag_select} />
   </div>
 
   <StarsSearch on_submit={handle_stars_select}/>

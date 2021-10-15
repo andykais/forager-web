@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import { KeyboardShortcuts } from '../keyboard-shortcuts'
   import { focus } from '../stores/focus'
 
@@ -40,6 +40,12 @@
   let show_video_preview = false
   let fit_media = false
   let media_dimensions = ''
+  let paused = false
+  let muted = false
+  let video_start_time = 0
+  $: {
+    if (media_reference_id) video_start_time = 0
+  }
   $: {
     if ($focus.startsWith('media_file')) keyboard_shortcuts.enable()
     else keyboard_shortcuts.disable()
@@ -100,19 +106,26 @@
     PlayPauseMedia: (e) => {
       e.preventDefault()
       if (media_file.media_type === 'VIDEO') {
-        if (video_element.paused) video_element.play()
-        else video_element.pause()
+        paused = !paused
+        /* if (video_element.paused) video_element.play() */
+        /* else video_element.pause() */
       }
     },
     ToggleFitMedia: (e) => {
       e.preventDefault()
       fit_media = !fit_media
-      console.log('ToggleFitMedia', fit_media)
     },
-    ToggleVideoPreviewVsThumbails: (e) => {
+    ToggleVideoPreviewVsThumbails: async (e) => {
       e.preventDefault()
+      if (!show_video_preview) video_start_time = video_element.currentTime
       show_video_preview = !show_video_preview
+      await tick()
+      if (!show_video_preview) video_element.currentTime = video_start_time
     },
+    ToggleVideoMute: (e) => {
+      e.preventDefault()
+      muted = !muted
+    }
   })
 </script>
 
@@ -127,6 +140,8 @@
         {:else}
           <video
             bind:this={video_element}
+            bind:muted={muted}
+            bind:paused
             style="{media_dimensions}"
             class="media-file"
             src="/api/media_file/{media_reference_id}"
