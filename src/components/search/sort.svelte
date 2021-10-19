@@ -4,7 +4,7 @@
 
   export let on_submit
 
-  let sort_by = 'created_at'
+  let sort_by = 'source_created_at'
   let sort_desc = true
 
   onMount(() => {

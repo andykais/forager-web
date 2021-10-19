@@ -47,7 +47,6 @@
     tags = await client.tag.remove_tags(media_reference.id, [{ name, group }])
   }
   function copy_tag(tag) {
-    console.log(encode_tag(tag))
     navigator.clipboard.writeText(encode_tag(tag))
   }
   const keyboard_shortcuts = new KeyboardShortcuts({

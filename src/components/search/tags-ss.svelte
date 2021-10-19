@@ -63,9 +63,10 @@
     }
   }
 
-  function handle_submit(e) {
+  async function handle_submit(e) {
     e.preventDefault()
-    on_submit(parse_input(input))
+    await on_submit(parse_input(input))
+    input_element.blur()
   }
 
   function parse_input(input, group_default = '') {

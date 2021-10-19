@@ -57,7 +57,6 @@
   $: {
     if (mounted) {
       const encoded_search_query = encode_search_query($search_query)
-      console.log({ encoded_search_query  })
       const entries = Object.entries(encoded_search_query)
       entries.sort((a,b) => a[0].localeCompare(b[0]))
       const params = entries.map(([k,v]) => `${k}=${v}`).join('&')
@@ -65,7 +64,6 @@
       if (Object.keys(params).length) {
         window.history.pushState('', '', '?' + params.toString())
       } else {
-        console.log('push nothing')
         window.history.pushState('', '', window.location.pathname)
       }
     }
@@ -76,7 +74,6 @@
     const params = {}
     new URLSearchParams(window.location.search).forEach((v,k) => params[k] = v)
     const search_query_params = decode_search_query(params)
-    console.log({ search_query_params })
     search_query.set(search_query_params)
     /* await search_results.load_more() */
     /* await current.set(current_media_index, $search_results.results[current_media_index].id) */
@@ -85,7 +82,6 @@
   async function on_intersect(media_reference_id: number) {
     const last_media_reference = media_references[media_references.length - 1]
     if (media_reference_id === last_media_reference.id) {
-      /* console.log({ last_media_reference }) */
       await search_results.load_more()
     }
   }

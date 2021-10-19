@@ -19,7 +19,6 @@ export function get(request: Request) {
     headers['Accept-Ranges'] = 'bytes'
     headers['Content-Length'] = end - start + 1
     const body = forager.media.get_file(media_reference_id, { bytes_start: start, bytes_end: end + 1 })
-    console.log('range:', request.headers.range, 'sending body size:', body.length, 'content-length:', headers['Content-Length'], `MBs: ${(body.length / (1024*1024)).toFixed(2)}`, 'full size:', file_size_bytes)
     return { status: 206, headers, body }
   } else {
     const body = forager.media.get_file(media_reference_id)

@@ -39,9 +39,9 @@
     <TagSearch name="search" bind:input={tag_input} on_submit={handle_tag_select} />
   </div>
 
-  <StarsSearch on_submit={handle_stars_select}/>
-
   <UnreadSearch on_submit={handle_unread_toggle} />
+
+  <StarsSearch on_submit={handle_stars_select}/>
 
   <SortSearch on_submit={handle_sort_select} />
 </div>
