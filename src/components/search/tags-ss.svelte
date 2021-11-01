@@ -67,6 +67,7 @@
     e.preventDefault()
     await on_submit(parse_input(input))
     input_element.blur()
+    search_results = []
   }
 
   function parse_input(input, group_default = '') {
