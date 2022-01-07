@@ -5,6 +5,7 @@ import * as z from 'zod'
 
 const ConfigData = z.object({
   database_path: z.string(),
+  log_level: z.enum(['info', 'warning', 'error'])
 })
 
 class Config {
