@@ -3,23 +3,27 @@ lockfileVersion: 5.3
 specifiers:
   '@sveltejs/adapter-auto': next
   '@sveltejs/kit': next
+  '@types/js-yaml': ^4.0.5
   autoprefixer: ^10.4.0
   forager: file:../forager/build/forager-0.5.0.tgz
+  js-yaml: ^4.1.0
   svelte: ^3.44.0
   svelte-check: ^2.2.6
   svelte-preprocess: ^4.10.1
   tailwindcss: ^3.0.7
-  ts-rpc: file:../ts-rpc/build/ts-rpc-1.0.0.tgz
   tslib: ^2.3.1
   typescript: ^4.4.3
+  zod: ^3.11.6
 
 dependencies:
   forager: file:../forager/build/forager-0.5.0.tgz
-  ts-rpc: file:../ts-rpc/build/ts-rpc-1.0.0.tgz
+  js-yaml: 4.1.0
+  zod: 3.11.6
 
 devDependencies:
   '@sveltejs/adapter-auto': 1.0.0-next.9
   '@sveltejs/kit': 1.0.0-next.216_svelte@3.44.3
+  '@types/js-yaml': 4.0.5
   autoprefixer: 10.4.1
   svelte: 3.44.3
   svelte-check: 2.2.11_svelte@3.44.3
@@ -154,6 +158,10 @@ packages:
       - supports-color
     dev: true
 
+  /@types/js-yaml/4.0.5:
+    resolution: {integrity: sha512-FhpRzf927MNQdRZP0J5DLIdTXhjLYzeUTmLAu69mnVksLH9CJY3IuSeEgbKUki7GQZm0WqDkGzyxju2EZGD2wA==}
+    dev: true
+
   /@types/node/17.0.8:
     resolution: {integrity: sha512-YofkM6fGv4gDJq78g4j0mMuGMkZVxZDgtU0JRdx6FgiJDG+0fY0GKVolOV8WqVmEhLCXkQRjwDdKyPxJp/uucg==}
     dev: true
@@ -231,6 +239,10 @@ packages:
 
   /arg/5.0.1:
     resolution: {integrity: sha512-e0hDa9H2Z9AwFkk2qDlwhoMYE4eToKarchkQHovNdLTCYMHZHeRjI71crOh+dio4K6u1IcwubQqo79Ga4CyAQA==}
+
+  /argparse/2.0.1:
+    resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
+    dev: false
 
   /autoprefixer/10.4.1:
     resolution: {integrity: sha512-B3ZEG7wtzXDRCEFsan7HmR2AeNsxdJB0+sEC0Hc5/c2NbhJqPwuZm+tn233GBVw82L+6CtD6IPSfVruwKjfV3A==}
@@ -925,6 +937,13 @@ packages:
   /js-tokens/4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
     dev: true
+
+  /js-yaml/4.1.0:
+    resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
+    hasBin: true
+    dependencies:
+      argparse: 2.0.1
+    dev: false
 
   /json-parse-even-better-errors/2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
@@ -1761,10 +1780,4 @@ packages:
       date-fns: 2.28.0
       sharp: 0.28.3
       zod: 3.11.6
-    dev: false
-
-  file:../ts-rpc/build/ts-rpc-1.0.0.tgz:
-    resolution: {integrity: sha512-tuRD3//ovurHtFnpsXjiwfKquzosWs7cS152noBy+Ylf5XeNn63D1E36yTde6lGdioSbUGiy4YCIB1eXwgT6/w==, tarball: file:../ts-rpc/build/ts-rpc-1.0.0.tgz}
-    name: ts-rpc
-    version: 1.0.0
     dev: false

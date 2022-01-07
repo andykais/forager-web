@@ -5,25 +5,22 @@ import type { ForagerSpec } from './spec'
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 const Forager: typeof ForagerImpl = require('forager').Forager
-
-const database_path = process.env['DATABASE'] ?? 'normal.db'
-const forager = new Forager({ database_path, log_level: 'info' })
-
-class ForagerApiServer {
-  media = forager.media
-  tag = forager.tag
-}
+import { Config } from './config'
 
 
-let initted = false
+let initialized = false
+const resources: { config?: Config; forager?: ForagerImpl } = {}
 export async function handle({ request, resolve }) {
-  if (!initted) {
+  if (!initialized) {
+    const config = await Config.load(process.env['CONFIG'])
+    console.log({ config })
+    const forager = new Forager({ database_path: config.database_path, log_level: 'info' })
     await forager.init()
-    initted = true
+    resources.forager = forager
+    resources.config = config
+    initialized = true
   }
-  request.locals.forager = forager
-  request.locals.rpc_server = create_rpc_server<ForagerSpec>(new ForagerApiServer())
+  request.locals.forager = resources.forager
+  request.locals.rpc_server = create_rpc_server<ForagerSpec>(resources.forager)
   return await resolve(request)
 }
-
-export { forager }
