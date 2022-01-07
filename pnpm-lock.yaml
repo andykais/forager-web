@@ -4,7 +4,7 @@ specifiers:
   '@sveltejs/adapter-auto': next
   '@sveltejs/kit': next
   autoprefixer: ^10.4.0
-  forager: file:../forager/build/src/forager-0.5.0.tgz
+  forager: file:../forager/build/forager-0.5.0.tgz
   svelte: ^3.44.0
   svelte-check: ^2.2.6
   svelte-preprocess: ^4.10.1
@@ -14,7 +14,7 @@ specifiers:
   typescript: ^4.4.3
 
 dependencies:
-  forager: file:../forager/build/src/forager-0.5.0.tgz
+  forager: file:../forager/build/forager-0.5.0.tgz
   ts-rpc: file:../ts-rpc/build/ts-rpc-1.0.0.tgz
 
 devDependencies:
@@ -1750,8 +1750,8 @@ packages:
     resolution: {integrity: sha512-daZ80A81I3/9lIydI44motWe6n59kRBfNzTuS2bfzVh1nAXi667TOTWWtatxyG+fwgNUiagSj/CWZwRRbevJIg==}
     dev: false
 
-  file:../forager/build/src/forager-0.5.0.tgz:
-    resolution: {integrity: sha512-CuSZv9PQ1hM/CnbZ7gMeydUuyIShlAo8uo7WlONRt+wVpgSqO+qSnEosDde7lxnac4zkPU3IKH4Xgn0OGvKevg==, tarball: file:../forager/build/src/forager-0.5.0.tgz}
+  file:../forager/build/forager-0.5.0.tgz:
+    resolution: {integrity: sha512-vkbB0rtqchsPdpfhdaX9GzaO95rXyKvlQmHVwa+yHNaIC/DI+ZDxu8WeBXHiprFqoXJTDD/B8JXy64CPbeiMnw==, tarball: file:../forager/build/forager-0.5.0.tgz}
     name: forager
     version: 0.5.0
     hasBin: true
@@ -1764,7 +1764,7 @@ packages:
     dev: false
 
   file:../ts-rpc/build/ts-rpc-1.0.0.tgz:
-    resolution: {integrity: sha512-6FVgZ4DWfUORAMLgn3qWFYknQAHcXqef0nlttIKvLGMz8SMvy5vGflPdWA9uLDbZe1Qldp/wf+DfRQ8Rtvu2uA==, tarball: file:../ts-rpc/build/ts-rpc-1.0.0.tgz}
+    resolution: {integrity: sha512-tuRD3//ovurHtFnpsXjiwfKquzosWs7cS152noBy+Ylf5XeNn63D1E36yTde6lGdioSbUGiy4YCIB1eXwgT6/w==, tarball: file:../ts-rpc/build/ts-rpc-1.0.0.tgz}
     name: ts-rpc
     version: 1.0.0
     dev: false
