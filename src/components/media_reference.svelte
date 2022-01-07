@@ -10,6 +10,7 @@
   export let loading = false
   export let tags = []
   export let media_reference
+  export let popup_tag = null
 
   let new_tag_input = ''
   let tag_group_map = {}
@@ -17,9 +18,14 @@
   let sidebar_width
   let source_created_ago
 
+  $: source_created_at = media_reference?.source_created_at
+    ? date_fns.format(new Date(media_reference?.source_created_at), 'MM/dd/yyyy')
+    : ''
   $: source_created_ago = media_reference?.source_created_at
     ? `Created ${date_fns.formatDistanceToNow(new Date(media_reference.source_created_at))} ago`
     : 'Unknown create date'
+
+  $: added_on = media_reference ? `Added ${date_fns.formatDistanceToNow(new Date(media_reference.created_at))} ago` : 'Loading...'
 
   $: {
     tag_group_map = tags.reduce((acc, tag) => {
@@ -55,6 +61,11 @@
       focus.stack('media_reference:tag:input')
     }
   })
+
+  function handle_click_button(tag) {
+    popup_tag = tag
+    console.log({ popup_tag })
+  }
 </script>
 
 <svelte:window on:keydown={keyboard_shortcuts.handler} />
@@ -75,10 +86,14 @@
         <input id="metadata" type="text" value={JSON.stringify(media_reference?.metadata)} />
       </div>
       <div>
-        <span>{source_created_ago}</span>
+        <div>{source_created_ago} ({source_created_at})</div>
+        <div>{added_on}</div>
       </div>
       <div>
         <span>Stars: {media_reference?.stars}</span>
+      </div>
+      <div>
+        <span>Views: {media_reference?.view_count}</span>
       </div>
     </div>
     <div id="tags" style="width: {sidebar_width}px">
@@ -87,7 +102,7 @@
           <h4>{group}</h4>
           <div class="tag-container">
             {#each tag_group_map[group] as tag}
-              <button class="tag" style="background-color: {tag.color}">
+              <button class="tag" style="background-color: {tag.color}" title="media count: {tag.media_reference_count} unread count: { tag.unread_media_reference_count}" on:click={() => handle_click_button(tag)}>
                 <span class="tag-name" title={tag.name}>{tag.name}</span>
                 <span>{tag.media_reference_count}</span>
               </button>

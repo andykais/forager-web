@@ -6,6 +6,19 @@ export function encode_tag(tag: Tag): string {
 
 export function decode_tag(tag_str: string): {group: string; name: string} {
   const split = tag_str.split(':')
-  if (split.length === 2) return { group: split[0], name: split[1] }
-  else return { name: split[0] }
+  let group = undefined
+  let name = ''
+  let not = false
+  if (split.length === 2) {
+    group = split[0]
+    name = split[1]
+  }
+  else {
+    name = split[0]
+  }
+  if (name.startsWith('-')) {
+    not = true
+    name = name.substr(1)
+  }
+  return { name, group, not }
 }

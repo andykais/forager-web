@@ -20,6 +20,7 @@
 
   function handle_tag_select(selected_tags) {
     // NOTE(perf): if we need to speed things up we can store tag_ids client side
+    console.log('handle tag select', { selected_tags })
     search_query.set_tags(selected_tags)
   }
   function handle_stars_select(star_count) {

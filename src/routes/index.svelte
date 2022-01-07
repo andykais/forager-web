@@ -7,6 +7,7 @@
   import IntersectionObserver from '../components/intersection_observer.svelte'
   import Thumbnail from '../components/thumbnail.svelte'
   import MediaReferenceTags from '../components/media_reference.svelte'
+  import TagDetail from '../components/tag-detail.svelte'
   import { focus } from '../stores/focus'
   import { search_query, search_results, encode_search_query, decode_search_query } from '../stores/search'
   import { current } from '../stores/current'
@@ -17,6 +18,7 @@
   let current_media_index = 0
   let should_load_current = false
   let mounted = false
+  let popup_tag = null
   $: search_refreshed = $search_results.loading === false && $search_results.results.length > 0
   $: if (search_refreshed) on_search_refresh()
   $: if ($search_query) current_media_index = 0
@@ -197,6 +199,15 @@
       show_media_file = false
     }
   }
+  function on_click_outside_tag_detail(e) {
+    console.log('outside')
+    // make sure that we only close the media when clicking on the surrounding div, not the image
+    // (theres probably a more robust solution here)
+    if (e.path[0] === this) {
+      focus.reset('thumbnail_grid')
+      popup_tag = null
+    }
+  }
 
 </script>
 
@@ -205,7 +216,7 @@
 <div class="container">
 
   <div id="toolbars-grid">
-    <MediaReferenceTags media_reference={$current.media_reference} tags={$current.tags} loading={$current.loading} />
+    <MediaReferenceTags media_reference={$current.media_reference} tags={$current.tags} loading={$current.loading} bind:popup_tag={popup_tag} />
 
   <div id="search-plus-viewer">
   {#if show_media_file}
@@ -218,6 +229,11 @@
         {on_prev_media}
         {on_close_media}
         {on_star_media}/>
+    </div>
+  {/if}
+  {#if popup_tag}
+    <div class="media-file-container" on:click={on_click_outside_tag_detail}>
+      <TagDetail tag={popup_tag} />
     </div>
   {/if}
   <div id="search-container">

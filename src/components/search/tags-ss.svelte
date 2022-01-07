@@ -27,6 +27,8 @@
     // FWIW this wont handle a user editing a tag further back
     // we could do something more complicated like check the diff location between old input & new input
     const input_tags = parse_input(input, null)
+    for (const inpt of input_tags)  console.log(inpt)
+    console.log('nl')
     const selected_tags = input_tags.slice(0, -1)
     const current_input = input_tags.at(-1)
     if(!throttled) {

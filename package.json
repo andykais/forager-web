@@ -23,7 +23,7 @@
   "dependencies": {
     "arg": "^5.0.1",
     "date-fns": "^2.23.0",
-    "forager": "^0.1.1",
+    "forager": "^0.2.1",
     "ts-rpc": "^1.0.0"
   }
 }

@@ -62,7 +62,7 @@ export function decode_search_query(search_query_object: EncodedSearchQuery): Se
 
 const PAGINATION_SIZE = 20
 
-type TagIdentifier = { name: string; group?: string }
+type TagIdentifier = { not?: bool; name: string; group?: string }
 type SearchQuery = { tags?: TagIdentifier[]; stars?: number }
 let should_trigger_search = false
 const search_query = (() => {
