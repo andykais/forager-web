@@ -6,15 +6,15 @@
   import MediaList from '../components/media_list.svelte'
   import MediaListFooter from '../components/media_list_footer.svelte'
 
-  let current_media_index = 0
-  const selected_media_ids = []
+  /* let current_media_index = 0 */
+  /* const selected_media_ids = [] */
   let show_media_reference_ui = true
 
   onMount(async () => {
     const result = await client.media.list()
     console.log({ result })
   })
-  function on_toggle_media_reference_iu(e) {
+  function on_toggle_media_reference_iu() {
     show_media_reference_ui = !show_media_reference_ui
   }
 </script>
