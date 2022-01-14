@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
   import Tag from './tags.svelte'
   import Stars from './stars.svelte'
   import Sort from './sort_by.svelte'
@@ -8,8 +9,14 @@
   import save_disk from '../../icons/zondicons/save-disk.svg?raw'
   import cog from '../../icons/zondicons/cog.svg?raw'
   import type * as types from './types'
+  import { search_engine } from '../../stores/search'
 
   let show_advanced_filters = false
+
+  onMount(() => {
+    // TODO set/read url
+    search_engine.set_query({})
+  })
 
   function handle_toggle_advanced_filters() {
     show_advanced_filters = !show_advanced_filters

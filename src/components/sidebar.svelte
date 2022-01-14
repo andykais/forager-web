@@ -7,10 +7,13 @@
   export let default_width: number
   export let classes = ""
   let width = default_width
+  let mousedown = false
   let state: 'hidden' | 'shown' | 'dragging' = 'hidden'
   let mouse_button_offset = 0
-
-  let mousedown = false
+  let button_width = 0
+  let window_width = 0
+  let max_sidebar_width = 0
+  $: max_sidebar_width = window_width - button_width
 
   function handle_mouseup() {
     mousedown = false
@@ -29,7 +32,7 @@
   function handle_mousemove(e: MouseEvent) {
     if (mousedown) {
       state = 'dragging'
-      width = e.clientX - mouse_button_offset
+      width = Math.min(e.clientX - mouse_button_offset, max_sidebar_width)
     }
   }
 </script>
@@ -42,6 +45,7 @@
   {/if}
 
   <button
+    bind:clientWidth={button_width}
     on:mouseup={handle_mouseup}
     on:mousedown={handle_mousedown}
     title="click to {state === 'hidden' ? 'open' : 'close'}, drag to resize"
@@ -56,4 +60,4 @@
   </button>
 </div>
 
-<svelte:window on:mousemove={handle_mousemove} on:mouseup={handle_window_mouseup} />
+<svelte:window bind:innerWidth={window_width} on:mousemove={handle_mousemove} on:mouseup={handle_window_mouseup} />
