@@ -21,7 +21,7 @@ class SearchEngine {
   }
 
   public set_query(query: types.SearchQuery) {
-    query = query
+    this.query = query
     return this.search({refresh: true})
   }
 

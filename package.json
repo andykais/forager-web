@@ -24,6 +24,7 @@
   },
   "type": "module",
   "dependencies": {
+    "date-fns": "^2.28.0",
     "forager": "^0.5.0",
     "js-yaml": "^4.1.0",
     "svelte-icon": "^1.2.3",

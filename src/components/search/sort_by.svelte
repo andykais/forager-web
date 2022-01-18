@@ -4,7 +4,7 @@
   import down from '../../icons/zondicons/arrow-thick-down.svg?raw'
   import up from '../../icons/zondicons/arrow-thick-up.svg?raw'
 
-  let sort_desc = false
+  let sort_desc = true
   let sort_by: SortQuery['sort_by'] = 'source_created_at'
   export let on_submit: (sort_query: SortQuery) => void
 
@@ -14,6 +14,7 @@
   }
   function handle_toggle_desc() {
     sort_desc = !sort_desc
+    console.log({sort_desc})
     on_submit({ sort_by, order: sort_desc ? 'desc' : 'asc' })
 }
 

@@ -5,8 +5,9 @@ import * as z from 'zod'
 
 const ConfigData = z.object({
   database_path: z.string(),
-  log_level: z.enum(['info', 'warning', 'error'])
-})
+  log_level: z.enum(['info', 'warning', 'error']),
+  set_one_star_on_edited_media: z.boolean().default(false)
+}).strict()
 
 class Config {
   static async load(filepath?: string) {

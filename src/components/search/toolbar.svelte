@@ -11,24 +11,35 @@
   import type * as types from './types'
   import { search_engine } from '../../stores/search'
 
-  let show_advanced_filters = false
+  let show_advanced_filters = true
+  let stars_query: types.StarsQuery = {}
+  let sort_query: types.SortQuery = {}
+  let unread_query: types.UnreadQuery = {}
+  let tag_query: types.TagQuery = {}
 
   onMount(() => {
     // TODO set/read url
     search_engine.set_query({})
   })
 
+  function search() {
+    search_engine.set_query({...stars_query, ...sort_query, ...unread_query, ...tag_query})
+  }
+
   function handle_toggle_advanced_filters() {
     show_advanced_filters = !show_advanced_filters
   }
-  function handle_stars_submit(stars_query: types.StarsQuery) {
-    console.log({ stars_query })
+  function handle_stars_submit(query: types.StarsQuery) {
+    stars_query = query
+    search()
   }
-  function handle_sort_submit(sort_query: types.SortQuery) {
-    console.log({ sort_query })
+  function handle_sort_submit(query: types.SortQuery) {
+    sort_query = query
+    search()
   }
-  function handle_unread_submit(unread_query: types.UnreadQuery) {
-    console.log({ unread_query})
+  function handle_unread_submit(query: types.UnreadQuery) {
+    unread_query = query
+    search()
   }
 </script>
 
@@ -50,7 +61,7 @@
     </div>
   </div>
   {#if show_advanced_filters}
-    <div class="border-t border-t-[1px] border-gray-700 flex gap-6">
+    <div class="border-t border-t-[1px] border-gray-700 flex gap-14 justify-center">
       <Stars on_submit={handle_stars_submit} />
       <Sort on_submit={handle_sort_submit}/>
       <Unread on_submit={handle_unread_submit} />

@@ -5,11 +5,11 @@
 
   const stars_indexes = Array(5).fill(0).map((_, i) => i + 1)
   let hovered_index = 0
-  const comparison_display = {'eq': '==', 'gte': '>='}
+  const equality_display = {'eq': '==', 'gte': '>='}
 
   export let on_submit: (stars_query: StarsQuery) => void
 
-  let comparison: StarsQuery['comparison'] = 'gte'
+  let equality: StarsQuery['stars_equality'] = 'gte'
   let stars = 0
 
   function on_mouseover(star_index: number) {
@@ -23,14 +23,14 @@
     else stars = star_index
     submit()
   }
-  function on_toggle_comparison() {
-    if (comparison === 'eq') comparison = 'gte'
-    else comparison = 'eq'
+  function on_toggle_equality() {
+    if (equality === 'eq') equality = 'gte'
+    else equality = 'eq'
     submit()
   }
   function submit() {
     if (stars === 0) on_submit({})
-    else on_submit({ comparison, stars })
+    else on_submit({ stars_equality: equality, stars })
   }
   function handle_focus() {}
 </script>
@@ -38,7 +38,8 @@
 <div class="flex items-center">
   {#each stars_indexes as star_index}
     <button
-      class="text-gray-700 px-[2px]"
+      class="px-[2px]"
+      class:text-gray-700={stars < star_index && hovered_index < star_index}
       class:text-gray-400={stars >= star_index && hovered_index < star_index}
       class:text-gray-300={hovered_index >= star_index}
       on:mouseover={() => on_mouseover(star_index)}
@@ -48,7 +49,7 @@
       <Icon data={star} size="18px" />
     </button>
   {/each}
-  <button class="text-gray-700 px-[2px] font-bold hover:text-gray-400 text-xl pb-[2px]" on:click={on_toggle_comparison}>
-    {comparison_display[comparison]}
+  <button class="text-gray-700 px-[2px] font-bold hover:text-gray-400 text-xl pb-[2px]" on:click={on_toggle_equality}>
+    {equality_display[equality]}
   </button>
 </div>
