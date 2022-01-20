@@ -1,21 +1,29 @@
 <script lang="ts">
+  import { search_results } from '../stores/search'
 
   export let height = 0
   export let thumbnail_size: number
 </script>
 
-<div class="flex justify-center bg-gray-600 border-t border-t-[2px] border-gray-800" style="height: {height}px">
-  <div class="w-3/5 grid grid-cols-auto-1fr-auto gap-4 items-center text-slate-800">
-    <label for="thumbnail-size">Thumbnail Size</label>
-    <input
-      class="appearance-none h-[7px] rounded-full bg-gray-800 slider-handle"
-      name="thumbnail-size"
-      type="range"
-      min={50}
-      max={500}
-      bind:value={thumbnail_size}>
-    <span>{thumbnail_size}px</span>
-  </div>
+<div class="grid grid-cols-2 items-center
+    px-4
+    text-slate-800 bg-gray-600 border-t border-t-[2px] border-gray-800" style="height: {height}px">
+    <div class="flex justify-center">
+    <div class="w-full grid grid-cols-auto-1fr-auto gap-4 items-center ">
+      <label for="thumbnail-size">Thumbnail Size</label>
+      <input
+        class="appearance-none h-[7px] rounded-full bg-gray-800 slider-handle"
+        name="thumbnail-size"
+        type="range"
+        min={50}
+        max={500}
+        bind:value={thumbnail_size}>
+      <span>{thumbnail_size}px</span>
+    </div>
+    </div>
+    <div class="flex justify-end">
+    <span>Total results {$search_results.total}</span>
+    </div>
 </div>
 
 <style>
