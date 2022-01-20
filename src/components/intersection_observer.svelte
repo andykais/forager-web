@@ -2,7 +2,21 @@
   import { createEventDispatcher, afterUpdate, onMount } from "svelte"
 
   export let focused: boolean
+  export let refreshed_at = 0
   let state: 'intersecting' | 'above' | 'below' = 'intersecting'
+  let last_state_change_at = Date.now()
+  $: {
+    // Sometimes the elements inside a intersection observer change, but the intersection observer isnt remounted
+    // (e.g. in the case of a list of intersection observers)
+    // To deal with this, we pass in a refreshed_at integer that _does_ update when we update the elements inside
+    // the intersection observer. This lets us resend the intersection state, rather than store a fat list of
+    // intersection state outside this component
+    // NOTE that this might become unnecessary if we start loading thumbnails according to how many will fill a page
+    if (last_state_change_at < refreshed_at) {
+      if (state === 'intersecting') dispatch('intersect')
+      last_state_change_at = refreshed_at
+    }
+  }
   const observer_options = {
     root: null,
     rootMargin: '0px',
@@ -27,6 +41,7 @@
       (entries) => {
         entries.forEach((_entry) => {
           if (_entry.target === element) {
+            last_state_change_at = Date.now()
             if  (_entry.isIntersecting) {
               state = 'intersecting'
               dispatch('intersect', _entry)

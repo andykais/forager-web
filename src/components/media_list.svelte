@@ -14,7 +14,7 @@
 <div class="h-full w-full text-center">
   {#each $search_results.results as media_reference, media_index (media_reference.id)}
     <div class="inline-grid m-2">
-      <IntersectionObserver focused={false} on:intersect={() => thumbnail_visible(media_index)}>
+      <IntersectionObserver focused={false} on:intersect={() => thumbnail_visible(media_index)} refreshed_at={$search_results.last_search_at}>
         <Thumbnail {media_reference} size={thumbnail_size} />
       </IntersectionObserver>
     </div>

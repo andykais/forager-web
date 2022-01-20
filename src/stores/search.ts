@@ -2,11 +2,13 @@ import { writable } from 'svelte/store'
 import { client } from '../client'
 import type * as types from '../components/search/types'
 import type { MediaReferenceTR } from 'forager/src/models/media_reference' // TODO we should go back to a postbuild step in forager lib
+import type { Config } from '../config'
 
 
 type ResolvePromise<T extends Promise<any>> = T extends Promise<infer U> ? U : never;
 type SearchApiParams = Parameters<typeof client.media.search>[0]
 type SearchResult = ResolvePromise<ReturnType<typeof client.media.search>>
+
 
 class SearchEngine {
   private pagination_size = 20
@@ -18,6 +20,7 @@ class SearchEngine {
     has_more_results: true,
     total: 0,
     results: [] as MediaReferenceTR[],
+    last_search_at: Date.now(),
   }
 
   public set_query(query: types.SearchQuery) {
@@ -25,7 +28,7 @@ class SearchEngine {
     return this.search({refresh: true})
   }
 
-  public url_encode_query(query: types.SearchQuery) {
+  public url_encode_query(config: Config, query: types.SearchQuery) {
     const encoded: URLSearchParams = new URLSearchParams()
     Object.keys(query).forEach(key => {
       const value = this.query[key]
@@ -35,14 +38,11 @@ class SearchEngine {
         case 'sort_by':
         case 'order':
         case 'stars':
-          encoded.set(key, value)
-          break
         case 'stars_equality':
-          // hide default values
-          if (value !== 'gte') encoded.set(key, value)
+          if (config.default_search_params[key] !== value) encoded.set(key, value)
           break
         case 'unread':
-          encoded.set(key, value ? 'true' : 'false')
+          if (config.default_search_params[key] !== value) encoded.set(key, value ? 'true' : 'false')
           break
         default:
           throw new Error(`unknown search query param '${key}' ${JSON.stringify(value)}`)
@@ -50,8 +50,8 @@ class SearchEngine {
     })
     return encoded
   }
-  public url_decode_query(params: URLSearchParams) {
-    const decoded: types.SearchQuery = {}
+  public url_decode_query(config: Config, params: URLSearchParams) {
+    const decoded: types.SearchQuery = { ...config.default_search_params }
     params.forEach((value, key: keyof types.SearchQuery) => {
       switch(key) {
         case 'tags':
@@ -96,6 +96,7 @@ class SearchEngine {
     this.ui_data.loading = false
     this.ui_data.total = res.total
     this.ui_data.has_more_results = res.result.length > 0
+    this.ui_data.last_search_at = Date.now()
     this.cursor = res.cursor
     if (refresh) this.ui_data.results = res.result
     else this.ui_data.results = this.ui_data.results.concat(res.result)

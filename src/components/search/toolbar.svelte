@@ -22,24 +22,21 @@
   export let height = 0
 
   onMount(() => {
-    const query = search_engine.url_decode_query(new URLSearchParams(window.location.search))
-    search_engine.set_query(build_query(query))
+    const query = search_engine.url_decode_query(config, new URLSearchParams(window.location.search))
+    search_engine.set_query(query)
   })
 
-  function build_query(param: types.SearchQuery = { ...stars_query, ...sort_query, ...unread_query, ...tag_query }) {
-    const query = {
-      order: config.default_order,
-      sort_by: config.default_sort_by,
-      ...param,
-    } as const
-    return query
-  }
-
   function search() {
-    const query = build_query()
+    const query = {
+      ...config.default_search_params,
+      ...stars_query,
+      ...sort_query,
+      ...unread_query,
+      ...tag_query 
+    }
     search_engine.set_query(query)
-    const url_encoded_search_query = search_engine.url_encode_query(query)
-    if (Object.keys(query).length) window.history.pushState('', '', '?' + url_encoded_search_query.toString())
+    const url_encoded_search_query = search_engine.url_encode_query(config, query).toString()
+    if (url_encoded_search_query) window.history.pushState('', '', '?' + url_encoded_search_query)
     else window.history.pushState('', '', window.location.pathname)
   }
 
@@ -60,7 +57,7 @@
   }
 </script>
 
-<div class="bg-gray-600 border-b border-b-[2px] border-gray-800" bind:clientHeight={height}>
+<div class="bg-gray-600 border-b-[2px] border-gray-800" bind:clientHeight={height}>
   <div class="px-3 py-3 grid grid-cols-5 items-center">
     <h1 class="text-lime-500 col-span-1">Forager Web</h1>
     <div class="col-span-3 grid grid-cols-1fr-auto items-center gap-3">
@@ -78,7 +75,7 @@
     </div>
   </div>
   {#if show_advanced_filters}
-    <div class="border-t border-t-[1px] border-gray-700 flex gap-14 justify-center">
+    <div class="border-t-[1px] border-gray-700 flex gap-14 justify-center">
       <Stars on_submit={handle_stars_submit} bind:stars_query={stars_query} />
       <Sort on_submit={handle_sort_submit} />
       <Unread on_submit={handle_unread_submit} />

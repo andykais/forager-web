@@ -8,8 +8,13 @@ const ConfigParser = z.object({
   log_level: z.enum(['info', 'warning', 'error']),
   default_one_star_on_edited_media: z.boolean().default(false),
   default_thumbnail_size: z.number().min(10).max(500).default(200),
-  default_sort_by: z.enum(['source_created_at', 'created_at', 'updated_at']).default('source_created_at'),
-  default_order: z.enum(['desc', 'asc']).default('desc'),
+  default_search_params: z.object({
+    sort_by: z.enum(['source_created_at', 'created_at', 'updated_at']).default('source_created_at'),
+    order: z.enum(['desc', 'asc']).default('desc'),
+    stars: z.number().min(0).max(5).default(0),
+    stars_equality: z.enum(['eq', 'gte']).default('gte'),
+    unread: z.boolean().default(false),
+  })
 }).strict()
 
 export async function load_config(filepath?: string) {
