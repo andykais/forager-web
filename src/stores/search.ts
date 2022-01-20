@@ -25,9 +25,54 @@ class SearchEngine {
     return this.search({refresh: true})
   }
 
-  public url_encode_query() {
+  public url_encode_query(query: types.SearchQuery) {
+    const encoded: URLSearchParams = new URLSearchParams()
+    Object.keys(query).forEach(key => {
+      const value = this.query[key]
+      switch(key) {
+        case 'tags':
+          throw new Error('unimplemented')
+        case 'sort_by':
+        case 'order':
+        case 'stars':
+          encoded.set(key, value)
+          break
+        case 'stars_equality':
+          // hide default values
+          if (value !== 'gte') encoded.set(key, value)
+          break
+        case 'unread':
+          encoded.set(key, value ? 'true' : 'false')
+          break
+        default:
+          throw new Error(`unknown search query param '${key}' ${JSON.stringify(value)}`)
+      }
+    })
+    return encoded
   }
-  public url_decode_query() {
+  public url_decode_query(params: URLSearchParams) {
+    const decoded: types.SearchQuery = {}
+    params.forEach((value, key: keyof types.SearchQuery) => {
+      switch(key) {
+        case 'tags':
+          throw new Error('unimplemented')
+        case 'stars':
+          decoded[key] = parseInt(value)
+          break
+        case 'unread':
+          decoded[key] = value === 'true' ? true : false
+          break
+        case 'sort_by':
+          decoded[key] = value as types.SearchQuery['sort_by']
+          break
+        case 'order':
+          decoded[key] = value as types.SearchQuery['order']
+          break
+        default:
+          throw new Error(`unknown search query param '${key}' ${JSON.stringify(value)}`)
+      }
+    })
+    return decoded
   }
 
   public set_pagination_size(limit: number) {
@@ -42,7 +87,6 @@ class SearchEngine {
   }
 
   private async search({ refresh }: {refresh: boolean}) {
-    console.log('search', {refresh})
     const api_params: SearchApiParams = {
       query: this.query,
       limit: this.pagination_size
@@ -55,7 +99,6 @@ class SearchEngine {
     this.cursor = res.cursor
     if (refresh) this.ui_data.results = res.result
     else this.ui_data.results = this.ui_data.results.concat(res.result)
-  console.log('loaded results', this.ui_data.results.length, res)
     search_results.set(this.ui_data)
   }
 }

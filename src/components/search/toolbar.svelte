@@ -20,12 +20,16 @@
   export let height = 0
 
   onMount(() => {
-    // TODO set/read url
-    search_engine.set_query({})
+    let query = search_engine.url_decode_query(new URLSearchParams(window.location.search))
+    search_engine.set_query(query)
   })
 
   function search() {
-    search_engine.set_query({...stars_query, ...sort_query, ...unread_query, ...tag_query})
+    const query = {...stars_query, ...sort_query, ...unread_query, ...tag_query}
+    search_engine.set_query(query)
+    const url_encoded_search_query = search_engine.url_encode_query(query)
+    if (Object.keys(query).length) window.history.pushState('', '', '?' + url_encoded_search_query.toString())
+    else window.history.pushState('', '', window.location.pathname)
   }
 
   function handle_toggle_advanced_filters() {
@@ -64,8 +68,8 @@
   </div>
   {#if show_advanced_filters}
     <div class="border-t border-t-[1px] border-gray-700 flex gap-14 justify-center">
-      <Stars on_submit={handle_stars_submit} />
-      <Sort on_submit={handle_sort_submit}/>
+      <Stars on_submit={handle_stars_submit} bind:stars_query={stars_query} />
+      <Sort on_submit={handle_sort_submit} />
       <Unread on_submit={handle_unread_submit} />
     </div>
   {/if}

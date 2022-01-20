@@ -8,9 +8,10 @@
   const equality_display = {'eq': '==', 'gte': '>='}
 
   export let on_submit: (stars_query: StarsQuery) => void
+  export let stars_query: StarsQuery
 
-  let equality: StarsQuery['stars_equality'] = 'gte'
-  let stars = 0
+  $: stars = stars_query.stars ?? 0
+  $: equality = stars_query.stars_equality ?? 'gte'
 
   function on_mouseover(star_index: number) {
     hovered_index = star_index

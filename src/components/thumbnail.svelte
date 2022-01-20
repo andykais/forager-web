@@ -26,7 +26,7 @@
     style="background-image: url(/api/thumbnail/{media_reference.id})" />
 </div>
 {#if detail !== 'none'}
-  <div class="flex flex-row items-center justify-between px-1" class:justify-between={detail === 'full'} class:justify-center={detail !== 'date'}>
+  <div class="flex flex-row items-center px-1" class:justify-between={detail === 'full'} class:justify-center={detail === 'date'}>
     {#if detail === 'full'}
       <div>
         {#each stars as star_index}
