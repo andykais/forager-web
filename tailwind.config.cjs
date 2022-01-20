@@ -5,6 +5,7 @@ const config = {
     extend: {
       gridTemplateColumns: {
         '1fr-auto': '1fr auto',
+        'auto-1fr-auto': 'auto 1fr auto',
       }
     },
   },

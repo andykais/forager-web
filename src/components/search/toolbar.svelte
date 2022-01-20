@@ -17,6 +17,8 @@
   let unread_query: types.UnreadQuery = {}
   let tag_query: types.TagQuery = {}
 
+  export let height = 0
+
   onMount(() => {
     // TODO set/read url
     search_engine.set_query({})
@@ -43,7 +45,7 @@
   }
 </script>
 
-<div class="bg-gray-600 border-b border-b-[2px] border-gray-800">
+<div class="bg-gray-600 border-b border-b-[2px] border-gray-800" bind:clientHeight={height}>
   <div class="px-3 py-3 grid grid-cols-5 items-center">
     <h1 class="text-lime-500 col-span-1">Forager Web</h1>
     <div class="col-span-3 grid grid-cols-1fr-auto items-center gap-3">
