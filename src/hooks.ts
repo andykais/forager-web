@@ -7,21 +7,20 @@ import { createRequire } from 'module'
 const require = createRequire(import.meta.url)
 const Forager: typeof ForagerImpl = require('forager').Forager
 import { load_config, type Config } from './config'
-import type { Request as SvelteRequest } from '@sveltejs/kit'
+import type { RequestEvent, GetSession } from '@sveltejs/kit'
 
 
 type Locals = {
   forager: ForagerImpl
   rpc_server: RPCServer<ForagerSpec>
 }
-export type Request<Body = any> = SvelteRequest<Locals, Body>
+export type Request = RequestEvent<Locals>
 
 let initialized = false
 const resources: { config?: Config; forager?: ForagerImpl } = {}
 export async function handle({ event, resolve }) {
   if (!initialized) {
     const config = await load_config(process.env['CONFIG'])
-    console.log({ config })
     const forager = new Forager({ database_path: config.database_path, log_level: 'info' })
     await forager.init()
     resources.forager = forager

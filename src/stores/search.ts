@@ -35,11 +35,14 @@ class SearchEngine {
     return this.search({refresh: true})
   }
 
-  public load_more() {
-    return this.search({refresh: false})
+  public async load_more() {
+    if (this.ui_data.has_more_results) {
+      await this.search({refresh: false})
+    }
   }
 
   private async search({ refresh }: {refresh: boolean}) {
+    console.log('search', {refresh})
     const api_params: SearchApiParams = {
       query: this.query,
       limit: this.pagination_size
@@ -48,8 +51,11 @@ class SearchEngine {
     const res = await client.media.search(api_params)
     this.ui_data.loading = false
     this.ui_data.total = res.total
+    this.ui_data.has_more_results = res.result.length > 0
+    this.cursor = res.cursor
     if (refresh) this.ui_data.results = res.result
-    else this.ui_data.results.concat(res.result)
+    else this.ui_data.results = this.ui_data.results.concat(res.result)
+  console.log('loaded results', this.ui_data.results.length, res)
     search_results.set(this.ui_data)
   }
 }
