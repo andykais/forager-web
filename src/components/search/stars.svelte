@@ -30,8 +30,7 @@
     submit()
   }
   function submit() {
-    if (stars === 0) on_submit({})
-    else on_submit({ stars_equality: equality, stars })
+    on_submit({ stars_equality: equality, stars })
   }
   function handle_focus() {}
 </script>

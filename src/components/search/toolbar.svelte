@@ -10,6 +10,7 @@
   import cog from '../../icons/zondicons/cog.svg?raw'
   import type * as types from './types'
   import { search_engine } from '../../stores/search'
+  import type { Config } from '../../config'
 
   let show_advanced_filters = true
   let stars_query: types.StarsQuery = {}
@@ -17,15 +18,25 @@
   let unread_query: types.UnreadQuery = {}
   let tag_query: types.TagQuery = {}
 
+  export let config: Config
   export let height = 0
 
   onMount(() => {
-    let query = search_engine.url_decode_query(new URLSearchParams(window.location.search))
-    search_engine.set_query(query)
+    const query = search_engine.url_decode_query(new URLSearchParams(window.location.search))
+    search_engine.set_query(build_query(query))
   })
 
+  function build_query(param: types.SearchQuery = { ...stars_query, ...sort_query, ...unread_query, ...tag_query }) {
+    const query = {
+      order: config.default_order,
+      sort_by: config.default_sort_by,
+      ...param,
+    } as const
+    return query
+  }
+
   function search() {
-    const query = {...stars_query, ...sort_query, ...unread_query, ...tag_query}
+    const query = build_query()
     search_engine.set_query(query)
     const url_encoded_search_query = search_engine.url_encode_query(query)
     if (Object.keys(query).length) window.history.pushState('', '', '?' + url_encoded_search_query.toString())

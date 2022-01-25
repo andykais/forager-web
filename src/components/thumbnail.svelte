@@ -19,7 +19,7 @@
 
 
 <div
-  class="p-2 inline-flex items-center justify-center shadow shadow-gray-500 bg-slate-300 rounded-lg"
+  class="p-2 inline-flex items-center justify-center shadow shadow-slate-500 bg-slate-300 rounded-lg"
   style="width: {size}px; height: {size}px" >
   <div
     class="w-full h-full bg-center bg-contain bg-no-repeat"
