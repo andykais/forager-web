@@ -16,6 +16,18 @@
   /* let keyboard_shortcuts: KeyboardShortcuts */
 
   let input_element: HTMLInputElement
+  new KeyboardShortcuts(config, 'media_list', {
+    FocusSearchTag: () => {
+      input_element.focus()
+      input_shortcuts.focus()
+    },
+  })
+  new KeyboardShortcuts(config, 'media_view', {
+    FocusSearchTag: () => {
+      input_element.focus()
+      input_shortcuts.focus()
+    },
+  })
   const input_shortcuts = new KeyboardShortcuts(config, 'search:tag:input', {
     FocusSearchTag: () => {
       input_element.focus()
