@@ -1,6 +1,6 @@
 export type TagIdentifier = { not?: boolean; name: string; group?: string }
 
-export type TagQuery = {tags?: TagIdentifier[]}
+export type TagsQuery = {tags?: TagIdentifier[]}
 
 export type StarsQuery = {stars?: number; stars_equality?: 'eq' | 'gte'}
 
@@ -11,4 +11,4 @@ export type SortQuery = {
 
 export type UnreadQuery = { unread?: boolean }
 
-export type SearchQuery = TagQuery & StarsQuery & SortQuery & UnreadQuery
+export type SearchQuery = TagsQuery & StarsQuery & SortQuery & UnreadQuery

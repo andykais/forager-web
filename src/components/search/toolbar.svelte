@@ -16,23 +16,27 @@
   let stars_query: types.StarsQuery = {}
   let sort_query: types.SortQuery = {}
   let unread_query: types.UnreadQuery = {}
-  let tag_query: types.TagQuery = {}
+  let tags_query: types.TagsQuery = {}
 
   export let config: Config
   export let height = 0
 
   onMount(() => {
-    const query = search_engine.url_decode_query(config, new URLSearchParams(window.location.search))
-    search_engine.set_query(query)
+    ({
+      stars_query,
+      sort_query,
+      unread_query,
+      tags_query
+    } = search_engine.url_decode_query(config, new URLSearchParams(window.location.search)))
+    search_engine.set_query({...stars_query, ...sort_query, ...unread_query, ...tags_query})
   })
 
   function search() {
     const query = {
-      ...config.default_search_params,
       ...stars_query,
       ...sort_query,
       ...unread_query,
-      ...tag_query 
+      ...tags_query 
     }
     search_engine.set_query(query)
     const url_encoded_search_query = search_engine.url_encode_query(config, query).toString()
@@ -42,6 +46,10 @@
 
   function handle_toggle_advanced_filters() {
     show_advanced_filters = !show_advanced_filters
+  }
+  function handle_tags_submit(query: types.TagsQuery) {
+    tags_query = query
+    search()
   }
   function handle_stars_submit(query: types.StarsQuery) {
     stars_query = query
@@ -61,7 +69,7 @@
   <div class="px-3 py-3 grid grid-cols-5 items-center">
     <h1 class="text-lime-500 col-span-1">Forager Web</h1>
     <div class="col-span-3 grid grid-cols-1fr-auto items-center gap-3">
-      <Tag />
+      <Tag {config} on_submit={handle_tags_submit} bind:tags_query={tags_query} />
       <button
         title="Advanced Filters"
         class="text-gray-700 hover:text-gray-800 hover:bg-gray-700 p-1 rounded-sm hover:shadow-inner hover:shadow-slate-800"
@@ -77,7 +85,7 @@
   {#if show_advanced_filters}
     <div class="border-t-[1px] border-gray-700 flex gap-14 justify-center">
       <Stars on_submit={handle_stars_submit} bind:stars_query={stars_query} />
-      <Sort on_submit={handle_sort_submit} />
+      <Sort on_submit={handle_sort_submit} bind:sort_query={sort_query} />
       <Unread on_submit={handle_unread_submit} />
     </div>
   {/if}

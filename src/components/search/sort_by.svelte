@@ -4,9 +4,10 @@
   import down from '../../icons/zondicons/arrow-thick-down.svg?raw'
   import up from '../../icons/zondicons/arrow-thick-up.svg?raw'
 
-  let sort_desc = true
-  let sort_by: SortQuery['sort_by'] = 'source_created_at'
   export let on_submit: (sort_query: SortQuery) => void
+  export let sort_query: SortQuery
+  $: sort_desc = sort_query.order === 'desc' ? true : false
+  $: sort_by = sort_query.sort_by ?? 'source_created_at'
 
   function handle_select(e: Event) {
     sort_by = (e.target as HTMLSelectElement).value as SortQuery['sort_by']
@@ -16,14 +17,13 @@
     sort_desc = !sort_desc
     console.log({sort_desc})
     on_submit({ sort_by, order: sort_desc ? 'desc' : 'asc' })
-}
-
+  }
 </script>
 
 <div class="flex items-center gap-1 text-slate-800 font-bold text-md">
   <select id="sort" class="bg-transparent" name="sort" value={sort_by} on:input={handle_select}>
-    <option value="created_at">Added On</option>
     <option value="source_created_at">Created At</option>
+    <option value="created_at">Added On</option>
     <option value="updated_at">Modified On</option>
   </select>
   <button class="px-1 hover:text-gray-300" on:click={handle_toggle_desc}>

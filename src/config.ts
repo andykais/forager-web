@@ -14,7 +14,26 @@ const ConfigParser = z.object({
     stars: z.number().min(0).max(5).default(0),
     stars_equality: z.enum(['eq', 'gte']).default('gte'),
     unread: z.boolean().default(false),
-  })
+  }),
+  keyboard_shortcuts: z.array(z.object({
+    action: z.string(),
+    shortcut: z.string().refine(val => {
+      let modifier: string | null = null
+      let key = ''
+      const split = val.split('-')
+      if (split.length === 2) {
+        modifier = split[0]
+        key = split[1]
+      } else if (split.length === 1) {
+        key = split[0]
+      } else {
+        return false
+      }
+      if (modifier !== null && modifier !== 'Ctrl') return false
+      return /Digit[0-9]/.test(key)
+        || /Key[A-Z]/.test(key)
+    }),
+  })).default([])
 }).strict()
 
 export async function load_config(filepath?: string) {

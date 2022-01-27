@@ -28,6 +28,25 @@ class SearchEngine {
     return this.search({refresh: true})
   }
 
+  public decode_tag(tag_str: string): types.TagIdentifier {
+    let group = ''
+    let name = ''
+    let not = tag_str.startsWith('-')
+    const split = tag_str
+      .replace(/^[-]/, '')
+      .trim()
+      .split(':')
+    if (split.length === 2) {
+      group = split[0]
+      name = split[1]
+    } else if (split.length === 1) {
+      name = split[0]
+    } else {
+      throw new Error(`invalid tag string ${tag_str}`)
+    }
+    return { not, name, group }
+  }
+
   public url_encode_query(config: Config, query: types.SearchQuery) {
     const encoded: URLSearchParams = new URLSearchParams()
     Object.keys(query).forEach(key => {
@@ -51,22 +70,39 @@ class SearchEngine {
     return encoded
   }
   public url_decode_query(config: Config, params: URLSearchParams) {
-    const decoded: types.SearchQuery = { ...config.default_search_params }
+    // const decoded: types.SearchQuery = { ...config.default_search_params }
+    const decoded =  {
+      stars_query: {
+        stars: config.default_search_params.stars,
+        stars_equality: config.default_search_params.stars_equality,
+      } as types.StarsQuery,
+      sort_query: {
+        sort_by: config.default_search_params.sort_by,
+        order: config.default_search_params.order,
+      } as types.SortQuery,
+      unread_query: {
+        unread: config.default_search_params.unread,
+      } as types.UnreadQuery,
+      tags_query: {} as types.TagsQuery,
+    }
     params.forEach((value, key: keyof types.SearchQuery) => {
       switch(key) {
         case 'tags':
           throw new Error('unimplemented')
         case 'stars':
-          decoded[key] = parseInt(value)
+          decoded.stars_query[key] = parseInt(value)
+          break
+        case 'stars_equality':
+          decoded.stars_query[key] = value as types.SearchQuery['stars_equality']
           break
         case 'unread':
-          decoded[key] = value === 'true' ? true : false
+          decoded.unread_query[key] = value === 'true' ? true : false
           break
         case 'sort_by':
-          decoded[key] = value as types.SearchQuery['sort_by']
+          decoded.sort_query[key] = value as types.SearchQuery['sort_by']
           break
         case 'order':
-          decoded[key] = value as types.SearchQuery['order']
+          decoded.sort_query[key] = value as types.SearchQuery['order']
           break
         default:
           throw new Error(`unknown search query param '${key}' ${JSON.stringify(value)}`)
