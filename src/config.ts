@@ -14,7 +14,7 @@ const ConfigParser = z.object({
     stars: z.number().min(0).max(5).default(0),
     stars_equality: z.enum(['eq', 'gte']).default('gte'),
     unread: z.boolean().default(false),
-  }),
+  }).default({}),
   keyboard_shortcuts: z.array(z.object({
     action: z.string(),
     shortcut: z.string().refine(val => {

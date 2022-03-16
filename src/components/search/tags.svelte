@@ -10,6 +10,16 @@
   export let tags_query: TagsQuery = {}
   export let on_submit: (tags_query: TagsQuery) => void
 
+  let decoded_from_url = false
+
+  $: {
+    if (!decoded_from_url && tags_query.tags) {
+      console.log('initting', tags_query)
+      input_value = tags_query.tags.map(tag => search_engine.encode_tag(tag)).join(' ')
+      decoded_from_url = true
+    }
+  }
+
   let input_value: string = ''
   let input_tags: string[] = []
   let tag_search_completion: TagDataTR[] = []
@@ -29,42 +39,59 @@
     },
   })
   const input_shortcuts = new KeyboardShortcuts(config, 'search:tag:input', {
-    FocusSearchTag: () => {
-      input_element.focus()
-      input_shortcuts.focus()
-    },
     Close: () => {
-      console.log('close')
       input_element.blur()
       input_shortcuts.remove_focus()
+      tag_search_completion = []
+    },
+    NextTagSuggestion,
+    PrevTagSuggestion,
+    Enter: () => {
+      console.log('enter??')
+      const tags = input_value
+        .split(/[ ]+/)
+        .filter(v => v.length > 0)
+        .map(tag => search_engine.decode_tag(tag))
+      tag_search_completion = []
+      on_submit({ tags })
+      input_shortcuts.remove_focus()
+      input_element.blur()
     }
   })
 
 
+  let suggestion_choice_index: null | number = null
   let suggestions_elements: HTMLButtonElement[] = []
   const suggestions_shortcuts = new KeyboardShortcuts(config, 'search:tag:suggestions', {
-    NextTagSuggestion: () => {
+    Close: () => {
+      tag_search_completion = []
+      suggestions_shortcuts.remove_focus()
     },
-    PrevTagSuggestion: () => {
-    }
+    NextTagSuggestion,
+    PrevTagSuggestion,
   })
+
+  function NextTagSuggestion() {
+    if (suggestion_choice_index === null) suggestion_choice_index = 0
+    else suggestion_choice_index = (suggestion_choice_index + 1) % tag_search_completion.length
+    suggestions_elements[suggestion_choice_index].focus()
+  }
+  function PrevTagSuggestion() {
+    if (suggestion_choice_index === null) suggestion_choice_index = tag_search_completion.length - 1
+    else suggestion_choice_index = (tag_search_completion.length + (suggestion_choice_index - 1)) % tag_search_completion.length
+    suggestions_elements[suggestion_choice_index].focus()
+  }
 
 
 import { onMount, onDestroy } from 'svelte'
 onMount(async () => {
-  /* keyboard_shortcuts = new KeyboardShortcuts(config) */
-  /* keyboard_shortcuts.on_focus(() => { */
-  /*   console.log('focus me please') */
-  /* }) */
   search_tag_completion('') // temp debugging
 })
-/* onDestroy(() => { */
-/*   keyboard_shortcuts?.close() */
-/* }) */
 
   async function search_tag_completion(tag_str: string) {
     tag_search_completion = await client.tag.search({
       ...search_engine.decode_tag(tag_str),
+      group: undefined,
       order: 'desc',
       sort_by: 'updated_at',
       limit: 5,
@@ -82,7 +109,16 @@ onMount(async () => {
   }
 
   function handle_suggest_tag(tag: TagDataTR) {
+    tag_search_completion = []
 
+    const encoded_tag = search_engine.encode_tag_row(tag)
+    if (input_value && input_value.endsWith(' ') === false) {
+      input_value = input_value.replace(/[^ ]+$/, '')
+    }
+    if (input_value) input_value += ' ' + encoded_tag
+    else input_value = encoded_tag
+    input_element.focus()
+    input_shortcuts.focus()
   }
 </script>
 
@@ -102,6 +138,7 @@ onMount(async () => {
       {#each tag_search_completion as suggestion, suggestion_index}
         <button
           class="block w-full px-2 flex justify-between border-b-[1px] border-slate-500 hover:bg-slate-300"
+          class:bg-slate-300={suggestion_choice_index === suggestion_index}
           on:click={() => handle_suggest_tag(suggestion)}
           on:focus={() => suggestions_shortcuts.focus()}
           on:blur={() => suggestions_shortcuts.remove_focus()}

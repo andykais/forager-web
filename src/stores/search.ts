@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store'
 import { client } from '../client'
 import type * as types from '../components/search/types'
+import type { TagDataTR } from 'forager/src/models/tag'
 import type { MediaReferenceTR } from 'forager/src/models/media_reference' // TODO we should go back to a postbuild step in forager lib
 import type { Config } from '../config'
 
@@ -28,8 +29,21 @@ class SearchEngine {
     return this.search({refresh: true})
   }
 
+  public encode_tag_row(tag: TagDataTR) {
+    let encoded = tag.name
+    if (tag.group) encoded = `${tag.group}:${encoded}`
+    return encoded
+  }
+
+  public encode_tag(tag: types.TagIdentifier) {
+    let encoded = tag.name
+    if (tag.group) encoded = `${tag.group}:${encoded}`
+    if (tag.not === true) encoded = `-${encoded}`
+    return encoded
+  }
+
   public decode_tag(tag_str: string): types.TagIdentifier {
-    let group = ''
+    let group: undefined | string = undefined
     let name = ''
     let not = tag_str.startsWith('-')
     const split = tag_str
@@ -53,7 +67,9 @@ class SearchEngine {
       const value = this.query[key]
       switch(key) {
         case 'tags':
-          throw new Error('unimplemented')
+          const tags_str = value.map(tag => this.encode_tag(tag)).join(',')
+          if (tags_str.length > 0) encoded.set(key, tags_str)
+          break
         case 'sort_by':
         case 'order':
         case 'stars':
@@ -88,7 +104,12 @@ class SearchEngine {
     params.forEach((value, key: keyof types.SearchQuery) => {
       switch(key) {
         case 'tags':
-          throw new Error('unimplemented')
+          const tags = value
+            .split(',')
+            .filter(v => v.length > 0)
+            .map(v => this.decode_tag(v))
+          decoded.tags_query[key] = tags
+          break
         case 'stars':
           decoded.stars_query[key] = parseInt(value)
           break

@@ -40,6 +40,7 @@
     }
     search_engine.set_query(query)
     const url_encoded_search_query = search_engine.url_encode_query(config, query).toString()
+    console.log({url_encoded_search_query})
     if (url_encoded_search_query) window.history.pushState('', '', '?' + url_encoded_search_query)
     else window.history.pushState('', '', window.location.pathname)
   }

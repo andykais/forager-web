@@ -10,11 +10,13 @@ type Focus =
   | 'modify:tag:suggestions'
 
 type Action =
+  | 'Enter'
   | 'Close'
   | 'NextMedia'
   | 'PrevMedia'
   | 'NextTagSuggestion'
   | 'PrevTagSuggestion'
+  | 'FocusSearchTag'
 
 const actions: Record<Action, {focus: Focus[]; shortcuts: string[]}> = {
   Close: {
@@ -36,7 +38,15 @@ const actions: Record<Action, {focus: Focus[]; shortcuts: string[]}> = {
   PrevTagSuggestion: {
     focus: ['search:tag:input', 'search:tag:suggestions', 'modify:tag:input', 'modify:tag:suggestions'],
     shortcuts: ['ArrowUp'],
-  }
+  },
+  FocusSearchTag: {
+    focus: ['media_list', 'media_view'],
+    shortcuts: ['Slash']
+  },
+  Enter: {
+    focus: ['search:tag:input'],
+    shortcuts: ['Enter']
+  },
 }
 
 class KeyDownSingleton {
@@ -64,6 +74,7 @@ class KeyDownSingleton {
         const action_definition = actions[action]
         if (action_definition.focus.includes(focus_id)) {
           for (const listener of this.listeners[focus_id]) {
+            e.preventDefault()
             listener.keyboard_event(action)
           }
         }
@@ -90,7 +101,7 @@ class KeyDownSingleton {
   focus(focus: Focus) {
     const focus_index = this._focus.indexOf(focus)
     if (focus_index === -1) this._focus.push(focus)
-    else this._focus.splice(focus_index)
+    else this._focus.splice(focus_index + 1)
     console.log('focus', focus, focus_index, this._focus)
     // for (const listener of this.listeners) listener._trigger_focus(focus)
   }
@@ -100,19 +111,16 @@ class KeyDownSingleton {
       this._focus.splice(focus_index)
       // for (const listener of this.listeners) listener._trigger_focus(focus)
     }
+    console.log('removed focus', focus, this._focus)
   }
 }
 
-type FocusListener = (focus: Focus) => void
-
-type ShortcutHandlers = {
-
-}
+type ShortcutHandlers = Partial<Record<Action, () => void>>
 
 class KeyboardShortcuts {
   private keydown: KeyDownSingleton
 
-  public constructor(private config: Config, public focus_id: Focus, private shortcut_handlers: ShortcutHandlers) {
+  public constructor(config: Config, public focus_id: Focus, private shortcut_handlers: ShortcutHandlers) {
     onMount(() => {
       this.keydown = KeyDownSingleton.instance(config)
       this.keydown.add_listener(this)
