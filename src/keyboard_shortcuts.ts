@@ -17,6 +17,8 @@ type Action =
   | 'NextTagSuggestion'
   | 'PrevTagSuggestion'
   | 'FocusSearchTag'
+  | 'ShiftDown'
+  | 'ShiftUp'
 
 const actions: Record<Action, {focus: Focus[]; shortcuts: string[]}> = {
   Close: {
@@ -47,6 +49,14 @@ const actions: Record<Action, {focus: Focus[]; shortcuts: string[]}> = {
     focus: ['search:tag:input'],
     shortcuts: ['Enter']
   },
+  ShiftDown: {
+    focus: ['media_list'],
+    shortcuts: ['ShiftDown']
+  },
+  ShiftUp: {
+    focus: ['media_list'],
+    shortcuts: ['ShiftUp']
+  },
 }
 
 class KeyDownSingleton {
@@ -67,19 +77,30 @@ class KeyDownSingleton {
     }
     window.onkeydown = (e: KeyboardEvent) => {
       let keysdown = e.code
+      if (e.shiftKey) this.trigger_shortcut(e, 'ShiftDown')
       if (e.ctrlKey) keysdown = 'Ctrl-' + keysdown
-      const action = this.shortcuts[keysdown]
-      if (action) {
-        const focus_id = this._focus.at(-1)
-        const action_definition = actions[action]
-        if (action_definition.focus.includes(focus_id)) {
-          for (const listener of this.listeners[focus_id]) {
-            e.preventDefault()
-            listener.keyboard_event(action)
-          }
+      if(this.trigger_shortcut(e, keysdown)) {
+      }
+    }
+    window.onkeyup = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') this.trigger_shortcut(e, 'ShiftUp')
+    }
+  }
+  trigger_shortcut(e: KeyboardEvent, action_key: string) {
+    let triggered = false
+    const action = this.shortcuts[action_key]
+    if (action) {
+      const focus_id = this._focus.at(-1)
+      const action_definition = actions[action]
+      if (action_definition.focus.includes(focus_id)) {
+        for (const listener of this.listeners[focus_id]) {
+          triggered = true
+          listener.keyboard_event(action)
         }
       }
     }
+    if (triggered) e.preventDefault()
+    return triggered
   }
   add_listener(listener: KeyboardShortcuts) {
     const focus_id = listener.focus_id

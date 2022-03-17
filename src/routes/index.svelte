@@ -33,7 +33,7 @@
   <div class="flex flex-1">
     <Sidebar classes="bg-gray-600" default_width={200}><MediaReference /></Sidebar>
     <div class="w-full overflow-y-scroll focus:outline-none" style="height: {media_list_height}px" tabindex=-1>
-      <MediaList {thumbnail_size} />
+      <MediaList {config} {thumbnail_size} />
     </div>
   </div>
   <MediaListFooter bind:thumbnail_size={thumbnail_size} bind:height={footer_height} />

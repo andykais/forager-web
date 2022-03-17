@@ -83,11 +83,6 @@
   }
 
 
-import { onMount, onDestroy } from 'svelte'
-onMount(async () => {
-  search_tag_completion('') // temp debugging
-})
-
   async function search_tag_completion(tag_str: string) {
     tag_search_completion = await client.tag.search({
       ...search_engine.decode_tag(tag_str),
