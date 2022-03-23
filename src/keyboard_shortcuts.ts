@@ -77,16 +77,17 @@ class KeyDownSingleton {
     }
     window.onkeydown = (e: KeyboardEvent) => {
       let keysdown = e.code
-      if (e.shiftKey) this.trigger_shortcut(e, 'ShiftDown')
+      if (e.shiftKey) this.trigger_shortcut('ShiftDown')
       if (e.ctrlKey) keysdown = 'Ctrl-' + keysdown
-      if(this.trigger_shortcut(e, keysdown)) {
+      if(this.trigger_shortcut(keysdown)) {
+        e.preventDefault()
       }
     }
     window.onkeyup = (e: KeyboardEvent) => {
-      if (e.key === 'Shift') this.trigger_shortcut(e, 'ShiftUp')
+      if (e.key === 'Shift') this.trigger_shortcut('ShiftUp')
     }
   }
-  trigger_shortcut(e: KeyboardEvent, action_key: string) {
+  trigger_shortcut(action_key: string) {
     let triggered = false
     const action = this.shortcuts[action_key]
     if (action) {
@@ -99,7 +100,6 @@ class KeyDownSingleton {
         }
       }
     }
-    if (triggered) e.preventDefault()
     return triggered
   }
   add_listener(listener: KeyboardShortcuts) {

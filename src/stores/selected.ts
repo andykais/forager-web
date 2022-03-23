@@ -11,32 +11,29 @@ class SelectedMedia {
     index: null as number | null
   }
 
-  get ui_all_ids_selected() {
+  public get ui_all_ids_selected() {
     return this.selected_set
   }
-  get ui_current_id_selected() {
+  public get ui_current_id_selected() {
     return this.last_selected.id
   }
 
-  set_media_references(media_references: MediaReferenceTR[]) {
+  public set_media_references(media_references: MediaReferenceTR[]) {
     this.media_references = media_references
   }
 
-  select_range(on: boolean) {
+  public select_range(on: boolean) {
     this.select_range_on = on
   }
 
-  select(media_reference_id: number, media_index: number) {
-    console.log(this.select_range_on)
+  private select(media_reference_id: number, media_index: number) {
     if (this.select_range_on) {
-      console.log('last_selected', this.last_selected.index, 'media_index', media_index)
       let start_index = this.last_selected.index
       let stop_index = media_index
       if (this.last_selected.index > media_index) {
         [start_index, stop_index] = [stop_index, start_index]
       }
       for (let index = start_index; index < stop_index; index++) {
-        console.log('add inc', index)
         this.selected_set.add(this.media_references[index].id)
       }
     }
@@ -47,12 +44,12 @@ class SelectedMedia {
     current_media_reference_id.set(media_reference_id)
   }
 
-  deselect(media_reference_id: number, media_index: number) {
+  private deselect(media_reference_id: number, media_index: number) {
     this.selected_set.delete(media_reference_id)
     selected.set(this.selected_set)
   }
 
-  toggle(media_reference_id: number, media_index: number) {
+  public toggle(media_reference_id: number, media_index: number) {
     if (this.selected_set.has(media_reference_id)) this.deselect(media_reference_id, media_index)
     else this.select(media_reference_id, media_index)
   }
